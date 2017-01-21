@@ -5,7 +5,7 @@
         [PerRendererData] _MainTex("Sprite Texture", 2D) = "white" {}
         [MaterialToggle] PixelSnap("Pixel snap", Float) = 0
 
-        _Color("Color", Color) = (1.0,1.0,1.0,0.0)
+        _Color("Color", Color) = (1.0,1.0,1.0,1.0)
     }
 
         SubShader
@@ -68,7 +68,7 @@
                 
                 #define MAX_WAVES_CIRCULAR 5
                 uniform float4 circular_AmpPerSpdStt[MAX_WAVES_CIRCULAR];
-                uniform float3 circular_PosDrop[MAX_WAVES_CIRCULAR];
+                uniform float4 circular_PosDropTsc[MAX_WAVES_CIRCULAR];
                 uniform int circular_number = 0;
                 #define MAX_WAVES_DIRECTIONAL 5
                 uniform float3 directional_AmpPerStt[MAX_WAVES_DIRECTIONAL];
@@ -87,20 +87,23 @@
                                     period = circular_AmpPerSpdStt[i].y,
                                     speed = circular_AmpPerSpdStt[i].z,
                                     startTime = circular_AmpPerSpdStt[i].w,
-                                    dropoff = circular_PosDrop[i].z;
-                        const float2 startPos = circular_PosDrop[i].xy;
-
+                                    dropoff = circular_PosDropTsc[i].z,
+                                    timeSinceCutoff = circular_PosDropTsc[i].w;
+                        const float2 startPos = circular_PosDropTsc[i].xy;
 
                         float timeSinceCreated = _Time.y - startTime;
                         float dist = distance(startPos, worldPos);
                         float heightScale = max(0.0, lerp(0.0, 1.0, 1.0 - (dist / dropoff)));
                         heightScale = pow(heightScale, waveDropoffRate);
 
-                        float cutoff = period * speed * timeSinceCreated;
-                        cutoff = max(0.0, (cutoff - dist) / cutoff);
+                        float outerCutoff = period * speed * timeSinceCreated;
+                        outerCutoff = max(0.0, (outerCutoff - dist) / outerCutoff);
+                        float innerCutoff = period * speed * timeSinceCutoff;
+                        innerCutoff = 1.0f - saturate((innerCutoff - dist) / innerCutoff);
+                        innerCutoff = pow(innerCutoff, 8.0);
 
                         float innerVal = (dist / period) + (-timeSinceCreated * speed);
-                        float waveScale = amplitude * heightScale * cutoff;
+                        float waveScale = amplitude * heightScale * outerCutoff * innerCutoff;
 
                         float heightOffset = sin(innerVal);
                         heightOffset = -1.0 + (2.0 * pow(0.5 + (0.5 * heightOffset),
