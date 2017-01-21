@@ -372,7 +372,7 @@ public static class NoiseAlgos3D
 
 
 [Serializable]
-public class NoiseOctaves : MyData.IReadWritable
+public class NoiseOctaves
 {
 	public int NOctaves = 3;
 	public float StartScale = 10.0f;
@@ -406,20 +406,6 @@ public class NoiseOctaves : MyData.IReadWritable
 		}
 
 		return val;
-	}
-
-	//Serialization stuff:
-	public void ReadData(MyData.Reader reader)
-	{
-		NOctaves = reader.Int("nOctaves");
-		StartScale = reader.Float("startScale");
-		Persistence = reader.Float("persistence");
-	}
-	public void WriteData(MyData.Writer writer)
-	{
-		writer.Int(NOctaves, "nOctaves");
-		writer.Float(StartScale, "startScale");
-		writer.Float(Persistence, "persistence");
 	}
 }
 
