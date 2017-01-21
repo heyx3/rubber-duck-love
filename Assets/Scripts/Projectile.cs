@@ -2,6 +2,12 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+public enum ProjectileType
+{
+	Rock = 0,
+	Bread = 1
+}
+
 public enum ProjectileState
 {
 	Windup = 0,
@@ -28,8 +34,15 @@ public class Projectile : MonoBehaviour
 	public float maxThrowTime = 2f;
 	public float maxScaleMod = 1.5f;
 	public float sinkTime = 1.0f;
+	public ProjectileType type;
 	
 	public AnimationCurve arc = new AnimationCurve();
+
+	// event messages
+	public delegate void ProjectileStateChangeEvent(ProjectileState oldState,
+													ProjectileState newState,
+													ProjectileType type);
+	public static event ProjectileStateChangeEvent OnProjectileStageChange;
 
 
 	// Use this for initialization
@@ -77,6 +90,12 @@ public class Projectile : MonoBehaviour
 
 		currState = newState;
 		timeInState = 0f;
+
+		if (OnProjectileStageChange != null)
+		{
+			OnProjectileStageChange(oldState, newState, type);
+		}
+
 	}
 
 	void EnterWindup(ProjectileState exitState)

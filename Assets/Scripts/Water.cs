@@ -165,15 +165,17 @@ public class Water : Singleton<Water>
 			float heightScale = Mathf.Lerp(0.0f, 1.0f, 1.0f - (dist / wave.Dropoff));
 			heightScale = Mathf.Pow(heightScale, WaveDropoffRate);
 
-			float outerCutoff = wave.Period * wave.Speed * timeSinceCreated;
-			//if (dist > outerCutoff)
-			//	continue;
+			float outerCutoff = Math.Min(wave.Dropoff, wave.Period * wave.Speed * timeSinceCreated);
+			if (dist > outerCutoff)
+				continue;
 			outerCutoff = Math.Max(0.0f, (outerCutoff - dist) / outerCutoff);
+
 			float innerCutoff = wave.Period * wave.Speed * wave.TimeSinceCutoff;
-			//if (dist < innerCutoff)
-			//	continue;
+			if (dist < innerCutoff)
+				continue;
 			innerCutoff = 1.0f - Mathf.Clamp01((innerCutoff - dist) / innerCutoff);
 			innerCutoff = Mathf.Pow(innerCutoff, 8.0f);
+
 			float cutoff = outerCutoff * innerCutoff;
 
 			float innerVal = (dist / wave.Period) + (-timeSinceCreated * wave.Speed);
@@ -187,7 +189,7 @@ public class Water : Singleton<Water>
 
 			float derivative = waveScale * Mathf.Cos(innerVal);
 			sample.WavePushDir += toCenter * derivative;
-			sample.SimplePushDir -= toCenter * SimplePushDropoff.Evaluate(outerCutoff);
+			sample.SimplePushDir -= toCenter * SimplePushDropoff.Evaluate(1.0f - outerCutoff);
 		}
 		for (int i = 0; i < waves_directional.Count; ++i)
 		{
