@@ -27,6 +27,7 @@ public class TransformResetter : MonoBehaviour {
 		if (rb2d != null)
 		{
 			rb2d.velocity = Vector2.zero;
+			rb2d.angularVelocity = 0f;
 		}
 
 	}

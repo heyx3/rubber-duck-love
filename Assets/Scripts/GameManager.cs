@@ -90,7 +90,19 @@ public class GameManager : Singleton<GameManager>
 
 	void EnterStartup(GameState exitState)
 	{
+		if (exitState == GameState.Lose || exitState == GameState.Win)
+		{
+			ResetGameState();
+		}
+	}
 
+	void ResetGameState()
+	{
+		Water.Instance.ClearWaves();
+		for (int i = 0; i < resetters.Length; i++)
+		{
+			resetters[i].ResetXForm();
+		}
 	}
 
 	void ExitStartup(GameState enterState)
@@ -100,13 +112,6 @@ public class GameManager : Singleton<GameManager>
 
 	void EnterPlaying(GameState exitState)
 	{
-		if (exitState == GameState.Lose || exitState == GameState.Win)
-		{
-			for (int i = 0; i < resetters.Length; i++)
-			{
-				resetters[i].ResetXForm();
-			}
-		}
 	}
 
 	void ExitPlaying(GameState enterState)
@@ -190,7 +195,7 @@ public class GameManager : Singleton<GameManager>
 	{
 		if (timeInState >= winDuration)
 		{
-			SetState(GameState.Playing);
+			SetState(GameState.Startup);
 		}
 	}
 
@@ -198,7 +203,7 @@ public class GameManager : Singleton<GameManager>
 	{
 		if (timeInState >= loseDuration)
 		{
-			SetState(GameState.Playing);
+			SetState(GameState.Startup);
 		}
 	}
 
