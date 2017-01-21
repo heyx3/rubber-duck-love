@@ -78,9 +78,11 @@
                 uniform float waveDropoffRate = 3.0;
                 uniform float waveSharpness = 2.0;
 
-                float getHeight(float2 worldPos)
+                float4 getHeightAndNormal(float2 worldPos)
                 {
                     float waveHeight = 0.0;
+                    float3 waveNormal = float3(0.0, 0.0, 0.00001);
+
                     for (int i = 0; i < circular_number; ++i)
                     {
                         const float amplitude = circular_AmpPerSpdStt[i].x,
@@ -105,11 +107,16 @@
                         float innerVal = (dist / period) + (-timeSinceCreated * speed);
                         float waveScale = amplitude * heightScale * outerCutoff * innerCutoff;
 
-                        float heightOffset = sin(innerVal);
-                        heightOffset = -1.0 + (2.0 * pow(0.5 + (0.5 * heightOffset),
-                                                         waveSharpness));
+                        float sinVal = sin(innerVal);
+                        float mappedSinVal = 0.5 + (0.5 * sinVal);
+                        float heightOffset = -1.0 + (2.0 * pow(mappedSinVal, waveSharpness));
 
                         waveHeight += waveScale * heightOffset;
+
+                        //Did some calc to figure out how to get the slope.
+                        float derivative = waveScale * cos(innerVal);
+
+
                     }
                     for (int j = 0; j < directional_number; ++j)
                     {
@@ -133,12 +140,9 @@
 
                         waveHeight += waveScale * heightOffset;
                     }
-                    return waveHeight;
-                }
-                float3 getNormal(float2 worldPos)
-                {
-                    //TODO: Implement. Also implement in Water::Sample()!
-                    return float3(0.0, 0.0, 1.0);
+
+                    waveNormal = normalize(waveNormal);
+                    return float4(waveHeight, waveNormal);
                 }
 
                 fixed4 frag(v2f IN) : SV_Target
@@ -149,9 +153,9 @@
                     texColor.a = tex2D(_AlphaTex, uv).r;
                 #endif //ETC1_EXTERNAL_ALPHA
                 
-                    float height = getHeight(IN.worldPos);
+                    float4 heightAndNormal = getHeightAndNormal(IN.worldPos);
 
-                    float f = 0.5 + (0.5 * height);
+                    float f = 0.5 + (0.5 * heightAndNormal.x);
                     return fixed4(f, f, f, 1.0);//DEBUG
 
                     return texColor * _Color;
