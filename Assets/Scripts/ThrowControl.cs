@@ -110,8 +110,6 @@ public class ThrowControl : MonoBehaviour
 
 	void ExitWindup(PlayerState enterState)
 	{
-		SetFill(0.0f);
-		fillIsUp = true;
 	}
 
 	void EnterThrowing(PlayerState exitState)
@@ -121,7 +119,8 @@ public class ThrowControl : MonoBehaviour
 
 	void ExitThrowing(PlayerState enterState)
 	{
-
+		SetFill(0.0f);
+		fillIsUp = true;
 	}
 
 	void EnterPostThrow(PlayerState exitState)
@@ -219,13 +218,22 @@ public class ThrowControl : MonoBehaviour
 		}
 		else
 		{
-			SetState(PlayerState.Aiming);
+			SetState(PlayerState.Throwing);
 		}
 	}
 
 	void UpdateThrowing()
 	{
+		// This expects to only be valid for 1 frame
+		ThrowProjectile();
+	}
 
+	void ThrowProjectile()
+	{
+		GameObject proj_obj = GameObject.Instantiate(objectToThrow,transform.position,arrowSlider.transform.rotation);
+		Projectile proj = proj_obj.GetComponent<Projectile>();
+		proj.StartThrow(currFill);
+		SetState(PlayerState.Aiming);
 	}
 
 	void UpdatePostThrow()
