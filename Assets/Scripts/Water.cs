@@ -14,6 +14,10 @@ public class Water : MonoBehaviour
 
 		public float Lifetime;
 
+		public float LifetimeMultiplier { get; private set; }
+		public float TimeSinceCutoff { get; private set; }
+
+
 		public Wave_Circular(float amplitude, float period, float speed,
 							 float startTime, float dropoff, Vector2 sourceWorldPos,
 							 float lifeTime)
@@ -25,6 +29,26 @@ public class Water : MonoBehaviour
 			Dropoff = dropoff;
 			SourceWorldPos = sourceWorldPos;
 			Lifetime = lifeTime;
+
+			LifetimeMultiplier = 1.0f;
+			TimeSinceCutoff = -10.0f;
+		}
+
+
+		public Wave_Circular AtTime(float currentT, float waveFadeTime)
+		{
+			Wave_Circular wave = this;
+
+			float lifeLength = currentT - wave.StartTime;
+			float timeTillEnd = wave.Lifetime - lifeLength;
+			wave.LifetimeMultiplier = Mathf.Clamp01(Mathf.InverseLerp(0.0f, waveFadeTime,
+																	  timeTillEnd));
+
+			float cutoffTime = wave.StartTime + wave.Lifetime -
+							       (wave.Dropoff / (wave.Period * wave.Speed));
+			wave.TimeSinceCutoff = Math.Max(0.0f, currentT - cutoffTime);
+
+			return wave;
 		}
 	}
 
@@ -56,18 +80,7 @@ public class Water : MonoBehaviour
 	private List<Wave_Circular> waves_circular = new List<Wave_Circular>();
 	private List<Wave_Directional> waves_directional = new List<Wave_Directional>();
 	private MaterialPropertyBlock waveArrayData;
-
-
-	private float GetLifetimeMultiplier(int i)
-	{
-		float currentT = Time.time;
-
-		float lifeLength = currentT - waves_circular[i].StartTime;
-		float timeTillEnd = waves_circular[i].Lifetime - lifeLength;
-
-		return Mathf.Clamp01(Mathf.InverseLerp(0.0f, WaveFadeTime, timeTillEnd));
-	}
-
+	
 
 	public void AddWave(Wave_Circular circularWave)
 	{
@@ -143,7 +156,7 @@ public class Water : MonoBehaviour
 			cutoff = Math.Max(0.0f, (cutoff - dist) / cutoff);
 
 			float innerVal = (dist / wave.Period) + (-timeSinceCreated * wave.Speed);
-			float waveScale = wave.Amplitude * GetLifetimeMultiplier(i) * heightScale * cutoff;
+			float waveScale = wave.Amplitude * wave.LifetimeMultiplier * heightScale * cutoff;
 
 			float heightOffset = Mathf.Sin(innerVal);
 			heightOffset = -1.0f + (2.0f * Mathf.Pow(0.5f + (0.5f * heightOffset),
@@ -178,7 +191,7 @@ public class Water : MonoBehaviour
 	}
 	private void Update()
 	{
-		//Remove any dead ripples.
+		//Update circular ripples and remove any dead ones.
 		float currentT = Time.time;
 		for (int i = 0; i < waves_circular.Count; ++i)
 		{
@@ -188,17 +201,23 @@ public class Water : MonoBehaviour
 				waves_circular.RemoveAt(i);
 				i -= 1;
 			}
+			else
+			{
+				waves_circular[i] = waves_circular[i].AtTime(currentT, WaveFadeTime);
+			}
 		}
 
 		//Set material parameters.
 		for (int i = 0; i < waves_circular.Count; ++i)
 		{
 			var wave = waves_circular[i];
-			arr_circ_AmpPerSpdStt[i] = new Vector4(wave.Amplitude * GetLifetimeMultiplier(i),
+
+			arr_circ_AmpPerSpdStt[i] = new Vector4(wave.Amplitude * wave.LifetimeMultiplier,
 												   wave.Period,
 												   wave.Speed, wave.StartTime);
-			arr_circ_PosDrop[i] = new Vector4(wave.SourceWorldPos.x, wave.SourceWorldPos.y,
-											  wave.Dropoff);
+			
+			arr_circ_PosDropTsc[i] = new Vector4(wave.SourceWorldPos.x, wave.SourceWorldPos.y,
+											     wave.Dropoff, wave.TimeSinceCutoff);
 		}
 		for (int i = 0; i < waves_directional.Count; ++i)
 		{
@@ -207,7 +226,7 @@ public class Water : MonoBehaviour
 			arr_dir_Vel[i] = wave.Velocity;
 		}
 		waveArrayData.SetVectorArray("circular_AmpPerSpdStt", arr_circ_AmpPerSpdStt);
-		waveArrayData.SetVectorArray("circular_PosDrop", arr_circ_PosDrop);
+		waveArrayData.SetVectorArray("circular_PosDropTsc", arr_circ_PosDropTsc);
 		MyRenderer.material.SetInt("circular_number", waves_circular.Count);
 		waveArrayData.SetVectorArray("directional_AmpPerStt", arr_dir_AmpPerStt);
 		waveArrayData.SetVectorArray("directional_Velocity", arr_dir_Vel);
@@ -220,7 +239,7 @@ public class Water : MonoBehaviour
 
 	//Arrays for storing the values that go into the Material:
 	private static Vector4[] arr_circ_AmpPerSpdStt = new Vector4[MaxWaves_Circular],
-							 arr_circ_PosDrop = new Vector4[MaxWaves_Circular],
+							 arr_circ_PosDropTsc = new Vector4[MaxWaves_Circular],
 							 arr_dir_AmpPerStt = new Vector4[MaxWaves_Directional],
 							 arr_dir_Vel = new Vector4[MaxWaves_Directional];
 }

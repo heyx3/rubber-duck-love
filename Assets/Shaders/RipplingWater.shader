@@ -5,7 +5,7 @@
         [PerRendererData] _MainTex("Sprite Texture", 2D) = "white" {}
         [MaterialToggle] PixelSnap("Pixel snap", Float) = 0
 
-        _Color("Color", Color) = (1.0,1.0,1.0,0.0)
+        _Color("Color", Color) = (1.0,1.0,1.0,1.0)
     }
 
         SubShader
@@ -68,7 +68,7 @@
                 
                 #define MAX_WAVES_CIRCULAR 5
                 uniform float4 circular_AmpPerSpdStt[MAX_WAVES_CIRCULAR];
-                uniform float3 circular_PosDrop[MAX_WAVES_CIRCULAR];
+                uniform float4 circular_PosDropTsc[MAX_WAVES_CIRCULAR];
                 uniform int circular_number = 0;
                 #define MAX_WAVES_DIRECTIONAL 5
                 uniform float3 directional_AmpPerStt[MAX_WAVES_DIRECTIONAL];
@@ -78,35 +78,45 @@
                 uniform float waveDropoffRate = 3.0;
                 uniform float waveSharpness = 2.0;
 
-                float getHeight(float2 worldPos)
+                float4 getHeightAndNormal(float2 worldPos)
                 {
                     float waveHeight = 0.0;
+                    float3 waveNormal = float3(0.0, 0.0, 0.00001);
+
                     for (int i = 0; i < circular_number; ++i)
                     {
                         const float amplitude = circular_AmpPerSpdStt[i].x,
                                     period = circular_AmpPerSpdStt[i].y,
                                     speed = circular_AmpPerSpdStt[i].z,
                                     startTime = circular_AmpPerSpdStt[i].w,
-                                    dropoff = circular_PosDrop[i].z;
-                        const float2 startPos = circular_PosDrop[i].xy;
-
+                                    dropoff = circular_PosDropTsc[i].z,
+                                    timeSinceCutoff = circular_PosDropTsc[i].w;
+                        const float2 startPos = circular_PosDropTsc[i].xy;
 
                         float timeSinceCreated = _Time.y - startTime;
                         float dist = distance(startPos, worldPos);
                         float heightScale = max(0.0, lerp(0.0, 1.0, 1.0 - (dist / dropoff)));
                         heightScale = pow(heightScale, waveDropoffRate);
 
-                        float cutoff = period * speed * timeSinceCreated;
-                        cutoff = max(0.0, (cutoff - dist) / cutoff);
+                        float outerCutoff = period * speed * timeSinceCreated;
+                        outerCutoff = max(0.0, (outerCutoff - dist) / outerCutoff);
+                        float innerCutoff = period * speed * timeSinceCutoff;
+                        innerCutoff = 1.0f - saturate((innerCutoff - dist) / innerCutoff);
+                        innerCutoff = pow(innerCutoff, 8.0);
 
                         float innerVal = (dist / period) + (-timeSinceCreated * speed);
-                        float waveScale = amplitude * heightScale * cutoff;
+                        float waveScale = amplitude * heightScale * outerCutoff * innerCutoff;
 
-                        float heightOffset = sin(innerVal);
-                        heightOffset = -1.0 + (2.0 * pow(0.5 + (0.5 * heightOffset),
-                                                         waveSharpness));
+                        float sinVal = sin(innerVal);
+                        float mappedSinVal = 0.5 + (0.5 * sinVal);
+                        float heightOffset = -1.0 + (2.0 * pow(mappedSinVal, waveSharpness));
 
                         waveHeight += waveScale * heightOffset;
+
+                        //Did some calc to figure out how to get the slope.
+                        float derivative = waveScale * cos(innerVal);
+
+
                     }
                     for (int j = 0; j < directional_number; ++j)
                     {
@@ -130,12 +140,9 @@
 
                         waveHeight += waveScale * heightOffset;
                     }
-                    return waveHeight;
-                }
-                float3 getNormal(float2 worldPos)
-                {
-                    //TODO: Implement. Also implement in Water::Sample()!
-                    return float3(0.0, 0.0, 1.0);
+
+                    waveNormal = normalize(waveNormal);
+                    return float4(waveHeight, waveNormal);
                 }
 
                 fixed4 frag(v2f IN) : SV_Target
@@ -146,9 +153,9 @@
                     texColor.a = tex2D(_AlphaTex, uv).r;
                 #endif //ETC1_EXTERNAL_ALPHA
                 
-                    float height = getHeight(IN.worldPos);
+                    float4 heightAndNormal = getHeightAndNormal(IN.worldPos);
 
-                    float f = 0.5 + (0.5 * height);
+                    float f = 0.5 + (0.5 * heightAndNormal.x);
                     return fixed4(f, f, f, 1.0);//DEBUG
 
                     return texColor * _Color;
