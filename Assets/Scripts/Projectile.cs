@@ -101,6 +101,17 @@ public class Projectile : MonoBehaviour
 
 	void EnterLanded(ProjectileState exitState)
 	{
+		Water water = Water.Instance;
+		if (water == null)
+		{
+			Debug.Log("No water!");
+		}
+		else
+		{
+			Water.Instance.AddWave(new Water.Wave_Circular(1.0f, 0.5f, 20.0f, Time.time, 10.0f,
+														transform.position,
+														2.0f));
+		}
 
 	}
 

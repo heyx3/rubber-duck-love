@@ -4,7 +4,7 @@ using UnityEngine;
 
 
 [RequireComponent(typeof(Renderer))]
-public class Water : MonoBehaviour
+public class Water : Singleton<Water>
 {
 	public struct Wave_Circular
 	{
@@ -45,7 +45,7 @@ public class Water : MonoBehaviour
 																	  timeTillEnd));
 
 			float cutoffTime = wave.StartTime + wave.Lifetime -
-							       (wave.Dropoff / (wave.Period * wave.Speed));
+							       (2.0f * wave.Dropoff / (wave.Period * wave.Speed));
 			wave.TimeSinceCutoff = Math.Max(0.0f, currentT - cutoffTime);
 
 			return wave;
@@ -184,8 +184,9 @@ public class Water : MonoBehaviour
 		}
 	}
 
-	private void Awake()
+	protected override void Awake()
 	{
+		base.Awake();
 		MyRenderer = GetComponent<Renderer>();
 		waveArrayData = new MaterialPropertyBlock();
 	}
