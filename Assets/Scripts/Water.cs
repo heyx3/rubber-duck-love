@@ -75,6 +75,8 @@ public class Water : Singleton<Water>
 	public float WaveDropoffRate = 3.0f,
 				 WaveSharpness = 2.0f;
 
+	public AnimationCurve SimplePushDropoff = AnimationCurve.Linear(0.0f, 1.0f, 1.0f, 0.0f);
+
 	public Renderer MyRenderer { get; private set; }
 
 	private List<Wave_Circular> waves_circular = new List<Wave_Circular>();
@@ -134,19 +136,27 @@ public class Water : Singleton<Water>
 		waves_directional.Clear();
 	}
 
-	public void Sample(Vector2 pos, out float height, out Vector3 normal, out Vector2 pushDir)
+	public struct PositionSample
+	{
+		public float Height;
+		public Vector3 Normal;
+		public Vector2 WavePushDir, SimplePushDir;
+	}
+	public PositionSample Sample(Vector2 pos)
 	{
 		//Note that this exact same code is in the shader.
 
-		height = 0.0f;
-		pushDir = Vector2.zero;
+		PositionSample sample = new PositionSample();
+		sample.Height = 0.0f;
+		sample.SimplePushDir = Vector2.zero;
+		sample.WavePushDir = Vector2.zero;
 
 		float currentT = Time.time;
 		for (int i = 0; i < waves_circular.Count; ++i)
 		{
 			var wave = waves_circular[i];
 
-			float timeSinceCreated = wave.StartTime - currentT;
+			float timeSinceCreated = currentT - wave.StartTime;
 
 			Vector2 toCenter = (wave.SourceWorldPos - pos);
 			float dist = toCenter.magnitude;
@@ -155,8 +165,16 @@ public class Water : Singleton<Water>
 			float heightScale = Mathf.Lerp(0.0f, 1.0f, 1.0f - (dist / wave.Dropoff));
 			heightScale = Mathf.Pow(heightScale, WaveDropoffRate);
 
-			float cutoff = wave.Period * wave.Speed * timeSinceCreated;
-			cutoff = Math.Max(0.0f, (cutoff - dist) / cutoff);
+			float outerCutoff = wave.Period * wave.Speed * timeSinceCreated;
+			//if (dist > outerCutoff)
+			//	continue;
+			outerCutoff = Math.Max(0.0f, (outerCutoff - dist) / outerCutoff);
+			float innerCutoff = wave.Period * wave.Speed * wave.TimeSinceCutoff;
+			//if (dist < innerCutoff)
+			//	continue;
+			innerCutoff = 1.0f - Mathf.Clamp01((innerCutoff - dist) / innerCutoff);
+			innerCutoff = Mathf.Pow(innerCutoff, 8.0f);
+			float cutoff = outerCutoff * innerCutoff;
 
 			float innerVal = (dist / wave.Period) + (-timeSinceCreated * wave.Speed);
 			float waveScale = wave.Amplitude * wave.LifetimeMultiplier * heightScale * cutoff;
@@ -165,15 +183,16 @@ public class Water : Singleton<Water>
 			heightOffset = -1.0f + (2.0f * Mathf.Pow(0.5f + (0.5f * heightOffset),
 												     WaveSharpness));
 
-			height += waveScale * heightOffset;
+			sample.Height += waveScale * heightOffset;
 
 			float derivative = waveScale * Mathf.Cos(innerVal);
-			pushDir -= toCenter * derivative;
+			sample.WavePushDir += toCenter * derivative;
+			sample.SimplePushDir -= toCenter * SimplePushDropoff.Evaluate(outerCutoff);
 		}
 		for (int i = 0; i < waves_directional.Count; ++i)
 		{
 			var wave = waves_directional[i];
-			float timeSinceCreated = wave.StartTime - currentT;
+			float timeSinceCreated = currentT - wave.StartTime;
 
 			Vector2 flowDir = wave.Velocity;
 			float speed = flowDir.magnitude;
@@ -186,13 +205,16 @@ public class Water : Singleton<Water>
 			heightOffset = -1.0f + (2.0f * Mathf.Pow(0.5f + (0.5f * heightOffset),
 													 WaveSharpness));
 
-			height += wave.Amplitude * heightOffset;
+			sample.Height += wave.Amplitude * heightOffset;
 
 			float derivative = wave.Amplitude * Mathf.Cos(innerVal);
-			pushDir += flowDir * derivative;
+			sample.WavePushDir += flowDir * derivative;
+			sample.SimplePushDir -= flowDir;
 		}
 
-		normal = new Vector3(pushDir.x, pushDir.y, 0.0001f).normalized;
+		sample.Normal = new Vector3(sample.WavePushDir.x, sample.WavePushDir.y, 0.0001f).normalized;
+
+		return sample;
 	}
 
 	protected override void Awake()
