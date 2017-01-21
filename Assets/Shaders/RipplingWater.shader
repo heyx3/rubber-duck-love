@@ -81,7 +81,7 @@
                 float4 getHeightAndNormal(float2 worldPos)
                 {
                     float waveHeight = 0.0;
-                    float3 waveNormal = float3(0.0, 0.0, 0.00001);
+                    float2 wavePushDir = float2(0.0, 0.0);
 
                     for (int i = 0; i < circular_number; ++i)
                     {
@@ -94,7 +94,11 @@
                         const float2 startPos = circular_PosDropTsc[i].xy;
 
                         float timeSinceCreated = _Time.y - startTime;
-                        float dist = distance(startPos, worldPos);
+
+                        float2 toCenter = (startPos - worldPos);
+                        float dist = length(toCenter);
+                        toCenter /= dist;
+
                         float heightScale = max(0.0, lerp(0.0, 1.0, 1.0 - (dist / dropoff)));
                         heightScale = pow(heightScale, waveDropoffRate);
 
@@ -115,8 +119,7 @@
 
                         //Did some calc to figure out how to get the slope.
                         float derivative = waveScale * cos(innerVal);
-
-
+                        wavePushDir -= toCenter * derivative;
                     }
                     for (int j = 0; j < directional_number; ++j)
                     {
@@ -132,16 +135,19 @@
 
                         float dist = dot(flowDir, worldPos);
                         float innerVal = (dist / period) + (-timeSinceCreated * speed);
-                        float waveScale = amplitude;
 
-                        float heightOffset = sin(innerVal);
-                        heightOffset = -1.0 + (2.0 * pow(0.5 + (0.5 * heightOffset),
-                                                         waveSharpness));
+                        float sinVal = sin(innerVal);
+                        float mappedSinVal = 0.5 + (0.5 * sinVal);
+                        float heightOffset = -1.0 + (2.0 * pow(mappedSinVal, waveSharpness));
 
-                        waveHeight += waveScale * heightOffset;
+                        waveHeight += amplitude * heightOffset;
+
+                        //Did some calc to figure out how to get the slope.
+                        float derivative = amplitude * cos(innerVal);
+                        wavePushDir += flowDir * derivative;
                     }
 
-                    waveNormal = normalize(waveNormal);
+                    float3 waveNormal = normalize(float3(wavePushDir, 0.001));
                     return float4(waveHeight, waveNormal);
                 }
 
@@ -155,6 +161,7 @@
                 
                     float4 heightAndNormal = getHeightAndNormal(IN.worldPos);
 
+                    return fixed4(0.5 + 0.5 * heightAndNormal.yzw, 1.0);
                     float f = 0.5 + (0.5 * heightAndNormal.x);
                     return fixed4(f, f, f, 1.0);//DEBUG
 

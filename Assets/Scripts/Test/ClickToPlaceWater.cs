@@ -9,6 +9,10 @@ public class ClickToPlaceWater : MonoBehaviour
 	public Camera Cam;
 
 
+	private void Start()
+	{
+		//TheWater.AddWave(new Water.Wave_Directional(1.0f, 0.5f, Time.time, new Vector2(10.0f, 10.0f)));
+	}
 	private void Update()
 	{
 		if (Input.GetMouseButtonDown(0))
