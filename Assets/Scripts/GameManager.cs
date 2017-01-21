@@ -19,6 +19,9 @@ public class GameManager : Singleton<GameManager>
 	public float startDuration = 1f;
 	public float winDuration = 2f;
 	public float loseDuration = 2f;
+	public float winTimeToContinue = 3f;
+	public float loseTimeToContinue = 3f;
+
 
 	public int startingRocks = 10;
 	public int currRockInventory = 0;

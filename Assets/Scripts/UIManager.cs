@@ -9,6 +9,7 @@ public class UIManager : MonoBehaviour
 	public CanvasGroup winPanel;
 	public CanvasGroup losePanel;
 	public CanvasGroup playPanel;
+	public CanvasGroup continuePanel;
 	public Text rockCountLabel;
 
 

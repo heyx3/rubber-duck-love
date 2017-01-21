@@ -122,7 +122,9 @@ public class ThrowControl : MonoBehaviour
 
 	void EnterStartup(PlayerState exitState)
 	{
-
+		currAngle = 0f;
+		currFill = 0f;
+		fillIsUp = true;
 	}
 
 	void ExitStartup(PlayerState enterState)
