@@ -39,8 +39,8 @@ public class WaterBobber : MonoBehaviour
 				MyForward = newForward2;
 			else
 				MyForward = -newForward2;
-
-			if (Vector2.Dot(MyRight, reader.normal) > 0.0f)
+			
+			if (Vector2.Dot(MyRight, reader.normal) < 0.0f)
 				spr.sprite = Sprite_BobRight;
 			else
 				spr.sprite = Sprite_BobLeft;

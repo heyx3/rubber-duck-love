@@ -6,7 +6,7 @@ using UnityEngine;
 public class ClickToPlaceWater : MonoBehaviour
 {
 	public Water TheWater;
-	public Camera Cam;
+	public Camera MainCam, WaterCam;
 
 	public float Amplitude = 1.0f,
 				 Period = 0.5f,
@@ -23,9 +23,13 @@ public class ClickToPlaceWater : MonoBehaviour
 	{
 		if (Input.GetMouseButtonDown(0))
 		{
+			Vector2 posT = new Vector2(Input.mousePosition.x / MainCam.pixelWidth,
+									   Input.mousePosition.y / MainCam.pixelHeight);
+			Vector2 posWaterCam = new Vector2(posT.x * WaterCam.pixelWidth,
+											  posT.y * WaterCam.pixelHeight);
 			TheWater.AddWave(new Water.Wave_Circular(Amplitude, Period, Speed,
 													 Time.time, Dropoff,
-													 Cam.ScreenToWorldPoint(Input.mousePosition),
+													 WaterCam.ScreenToWorldPoint(posWaterCam),
 													 Lifetime));
 		}
 	}
