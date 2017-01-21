@@ -9,7 +9,9 @@ public enum PlayerState
 	Aiming = 1,
 	Windup = 2,
 	Throwing = 3,
-	PostThrow = 4
+	PostThrow = 4,
+	Win = 5,
+	Lose = 6
 }
 
 public class ThrowControl : MonoBehaviour
@@ -39,6 +41,16 @@ public class ThrowControl : MonoBehaviour
 	public static event PlayerStateChangeEvent OnPlayerStateChange;
 
 
+	void OnEnable()
+	{
+		GameManager.OnGameStateChange += HandleGameStateChange;
+	}
+
+	void OnDisable()
+	{
+		GameManager.OnGameStateChange -= HandleGameStateChange;
+	}
+	
 	// Use this for initialization
 	void Start ()
 	{
@@ -65,6 +77,12 @@ public class ThrowControl : MonoBehaviour
 		case PlayerState.PostThrow:
 			ExitPostThrow(newState);
 			break;			
+		case PlayerState.Win:
+			ExitWin(newState);
+			break;
+		case PlayerState.Lose:
+			ExitLose(newState);
+			break;			
 		}
 		switch (newState)
 		{
@@ -82,6 +100,12 @@ public class ThrowControl : MonoBehaviour
 			break;
 		case PlayerState.PostThrow:
 			EnterPostThrow(oldState);
+			break;			
+		case PlayerState.Win:
+			EnterWin(oldState);
+			break;			
+		case PlayerState.Lose:
+			EnterLose(oldState);
 			break;			
 		}
 		currState = newState;
@@ -143,6 +167,26 @@ public class ThrowControl : MonoBehaviour
 
 	}
 
+	void EnterWin(PlayerState exitState)
+	{
+
+	}
+
+	void ExitWin(PlayerState enterState)
+	{
+
+	}
+
+	void EnterLose(PlayerState exitState)
+	{
+
+	}
+
+	void ExitLose(PlayerState enterState)
+	{
+
+	}
+
 	void ProcessInput()
 	{
 		windupButtonPressed = Input.GetAxisRaw("Vertical") != 0.0f;
@@ -180,6 +224,12 @@ public class ThrowControl : MonoBehaviour
 			break;
 		case PlayerState.PostThrow:
 			UpdateThrowing();
+			break;			
+		case PlayerState.Win:
+			UpdateWin();
+			break;			
+		case PlayerState.Lose:
+			UpdateLose();
 			break;			
 		}
 
@@ -249,5 +299,34 @@ public class ThrowControl : MonoBehaviour
 	void UpdatePostThrow()
 	{
 
+	}
+
+	void UpdateWin()
+	{
+
+	}
+
+	void UpdateLose()
+	{
+
+	}
+
+	void HandleGameStateChange(GameState oldState, GameState newState)
+	{
+		// catch changes into win or Lose
+		if (newState == GameState.Win)
+		{
+			SetState(PlayerState.Win);
+		}
+		else if (newState == GameState.Lose)
+		{
+			SetState(PlayerState.Lose);
+		}
+		// catch changes out of win or lose (back to aiming)
+		else if (newState == GameState.Playing &&
+				(oldState == GameState.Win || oldState == GameState.Lose))
+		{
+			SetState(PlayerState.Aiming);
+		}
 	}
 }

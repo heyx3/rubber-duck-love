@@ -15,6 +15,11 @@ public class GameManager : Singleton<GameManager>
 {
 
 	public GameState currState;
+	public float timeInState;
+	public float winDuration = 2f;
+	public float loseDuration = 2f;
+
+	private TransformResetter[] resetters;
 
 	// event messages
 	public delegate void GameStateChangeEvent(GameState oldState, GameState newState);
@@ -28,6 +33,7 @@ public class GameManager : Singleton<GameManager>
 	// Use this for initialization
 	void Start ()
 	{
+		resetters = GameObject.FindObjectsOfType<TransformResetter>();
 		SetState(GameState.Startup);
 	}
 	
@@ -71,6 +77,7 @@ public class GameManager : Singleton<GameManager>
 			break;			
 		}
 		currState = newState;
+		timeInState = 0f;
 
 		if (OnGameStateChange != null)
 		{
@@ -90,7 +97,13 @@ public class GameManager : Singleton<GameManager>
 
 	void EnterPlaying(GameState exitState)
 	{
-
+		if (exitState == GameState.Lose || exitState == GameState.Win)
+		{
+			for (int i = 0; i < resetters.Length; i++)
+			{
+				resetters[i].ResetXForm();
+			}
+		}
 	}
 
 	void ExitPlaying(GameState enterState)
@@ -131,7 +144,25 @@ public class GameManager : Singleton<GameManager>
 	// Update is called once per frame
 	void Update ()
 	{
-		
+		timeInState += Time.deltaTime;
+		switch (currState)
+		{
+		case GameState.Startup:
+			UpdateStartup();
+			break;
+		case GameState.Playing:
+			UpdatePlaying();
+			break;
+		case GameState.Paused:
+			UpdatePaused();
+			break;
+		case GameState.Win:
+			UpdateWin();
+			break;
+		case GameState.Lose:
+			UpdateLose();
+			break;			
+		}
 	}
 
 	void UpdateStartup()
@@ -151,11 +182,23 @@ public class GameManager : Singleton<GameManager>
 
 	void UpdateWin()
 	{
-
+		if (timeInState >= winDuration)
+		{
+			SetState(GameState.Playing);
+		}
 	}
 
 	void UpdateLose()
 	{
+		if (timeInState >= loseDuration)
+		{
+			SetState(GameState.Playing);
+		}
+	}
 
+	public void HitTarget()
+	{
+		Debug.Log("You hit the target!");
+		SetState(GameState.Win);
 	}
 }
