@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class UIManager : MonoBehaviour
+public class UIManager  : Singleton<UIManager>
 {
 	public CanvasGroup startPanel;
 	public CanvasGroup winPanel;
@@ -40,6 +40,7 @@ public class UIManager : MonoBehaviour
 		winPanel.alpha = newState == GameState.Win ? 1 : 0;
 		losePanel.alpha = newState == GameState.Lose ? 1 : 0;
 		playPanel.alpha = (newState == GameState.Playing || newState == GameState.Win) ? 1 : 0;
+		continuePanel.alpha = 0f;
 
 		UpdateProjectileCount();
 	}
@@ -53,5 +54,10 @@ public class UIManager : MonoBehaviour
 	void HandleProjectileEvent (bool isThrowNotDead)
 	{
 		UpdateProjectileCount();
+	}
+
+	public void ShowContinuePanel()
+	{
+		continuePanel.alpha = 1;
 	}
 }

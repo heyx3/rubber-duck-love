@@ -45,14 +45,14 @@ public class GameManager : Singleton<GameManager>
 	void Start ()
 	{
 		resetters = GameObject.FindObjectsOfType<TransformResetter>();
-		Debug.Log("Found " + resetters.Length.ToString() + " resetters");
+		// Debug.Log("Found " + resetters.Length.ToString() + " resetters");
 		SetState(GameState.Startup);
 	}
 	
 	void SetState(GameState newState)
 	{
 		GameState oldState = currState;
-		Debug.Log("Changing Game State from '" + oldState.ToString() + "' to '" + newState.ToString() + "'");
+		// Debug.Log("Changing Game State from '" + oldState.ToString() + "' to '" + newState.ToString() + "'");
 		switch (oldState)
 		{
 		case GameState.Startup:
@@ -214,6 +214,14 @@ public class GameManager : Singleton<GameManager>
 		{
 			SetState(GameState.Startup);
 		}
+		if (timeInState >= minWinDuration && !promptedContinue)
+		{
+			UIManager.Instance.ShowContinuePanel();
+			if (Input.GetKeyDown(KeyCode.Space))
+			{
+				SetState(GameState.Startup);
+			}
+		}
 	}
 
 	void UpdateLose()
@@ -221,6 +229,14 @@ public class GameManager : Singleton<GameManager>
 		if (timeInState >= maxLoseDuration)
 		{
 			SetState(GameState.Startup);
+		}
+		if (timeInState >= minLoseDuration && !promptedContinue)
+		{
+			UIManager.Instance.ShowContinuePanel();
+			if (Input.GetKeyDown(KeyCode.Space))
+			{
+				SetState(GameState.Startup);
+			}
 		}
 	}
 
