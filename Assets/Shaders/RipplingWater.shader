@@ -6,6 +6,11 @@
         [MaterialToggle] PixelSnap("Pixel snap", Float) = 0
 
         _Color("Color", Color) = (1.0,1.0,1.0,1.0)
+
+        _Ambient("Ambient light", Float) = 0.3
+        _Diffuse("Diffuse light", Float) = 0.7
+        _Specular("Specular light", Float) = 1.0
+        _SpecIntensity("Specular intensity", Float) = 64.0
     }
 
         SubShader
@@ -77,6 +82,10 @@
 
                 uniform float waveDropoffRate = 3.0;
                 uniform float waveSharpness = 2.0;
+
+                uniform float3 lightDir = float3(0.57735, 0.57735, -0.57735);
+                float _Ambient, _Diffuse, _Specular, _SpecIntensity;
+
 
                 float4 getHeightAndNormal(float2 worldPos)
                 {
@@ -150,6 +159,12 @@
                     float3 waveNormal = normalize(float3(wavePushDir, 0.001));
                     return float4(waveHeight, waveNormal);
                 }
+
+                float getBrightness(float3 normal, float2 worldPos)
+                {
+
+                }
+
 
                 fixed4 frag(v2f IN) : SV_Target
                 {
