@@ -19,7 +19,7 @@ public class ClickToPlaceWater : MonoBehaviour
 		{
 			TheWater.AddWave(new Water.Wave_Circular(1.0f, 0.5f, 20.0f, Time.time, 10.0f,
 													 Cam.ScreenToWorldPoint(Input.mousePosition),
-													 2.0f));
+													 9.0f));
 		}
 	}
 }
