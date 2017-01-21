@@ -30,5 +30,10 @@ public class WaterReader : MonoBehaviour {
 		wavePushDir = sample.WavePushDir;
 		simplePushDir = sample.SimplePushDir;
 		tunedPushDir = wavePushDir * waveFactor + simplePushDir * pushFactor;
+		float oldMag = tunedPushDir.magnitude;
+		if (oldMag != 0)
+		{
+			tunedPushDir = tunedPushDir / oldMag * Mathf.Clamp(oldMag, 0f, 1f);
+		}
 	}
 }
