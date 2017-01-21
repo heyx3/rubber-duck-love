@@ -238,7 +238,7 @@ public class Projectile : MonoBehaviour
 		if (other.tag == "ProjectileBoundary" &&
 			currState == ProjectileState.Airborne)
 		{
-			SetState(ProjectileState.Landed);
+			SetState(ProjectileState.Dead);
 		}
 	}
 }
