@@ -34,6 +34,11 @@ public class ThrowControl : MonoBehaviour
 	public float maxDegPerSec = 90;
 	public float maxFillPerSec = 1f;
 
+	// event messages
+	public delegate void PlayerStateChangeEvent(PlayerState oldState, PlayerState newState);
+	public static event PlayerStateChangeEvent OnPlayerStateChange;
+
+
 	// Use this for initialization
 	void Start ()
 	{
@@ -80,6 +85,11 @@ public class ThrowControl : MonoBehaviour
 			break;			
 		}
 		currState = newState;
+
+		if (OnPlayerStateChange != null)
+		{
+			OnPlayerStateChange(oldState,newState);
+		}
 	}
 
 	void EnterDead(PlayerState exitState)
