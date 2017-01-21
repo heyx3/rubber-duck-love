@@ -14,9 +14,9 @@ public class Projectile : MonoBehaviour
 {
 	[Header("State Variables")]
 	public ProjectileState currState = ProjectileState.Windup;
-	public float currTime;
+	public float timeInState;
 	public float totalThrowTime;
-	public float currThrowProgress;
+	public float currStateProgress;
 	public Vector3 startPos = new Vector3();
 	public Vector3 destPos = new Vector3();
 	public Vector3 startScale = new Vector3();
@@ -27,6 +27,7 @@ public class Projectile : MonoBehaviour
 	public float minThrowTime = 0.5f;
 	public float maxThrowTime = 2f;
 	public float maxScaleMod = 1.5f;
+	public float sinkTime = 1.0f;
 	
 	public AnimationCurve arc = new AnimationCurve();
 
@@ -34,49 +35,163 @@ public class Projectile : MonoBehaviour
 	// Use this for initialization
 	void Start ()
 	{
-		
+		//SetState(ProjectileState.Windup);
 	}
 	
+	void SetState(ProjectileState newState)
+	{
+		ProjectileState oldState = currState;
+		//Debug.Log("Changing Projectile State from '" + oldState.ToString() + "' to '" + newState.ToString() + "'");
+
+		switch(oldState)
+		{
+		case ProjectileState.Windup:
+			ExitWindup(newState);
+			break;
+		case ProjectileState.Airborne:
+			ExitAirborne(newState);
+			break;
+		case ProjectileState.Landed:
+			ExitLanded(newState);
+			break;
+		case ProjectileState.Dead:
+			ExitDead(newState);
+			break;
+		}
+
+		switch(newState)
+		{
+		case ProjectileState.Windup:
+			EnterWindup(oldState);
+			break;
+		case ProjectileState.Airborne:
+			EnterAirborne(oldState);
+			break;
+		case ProjectileState.Landed:
+			EnterLanded(oldState);
+			break;
+		case ProjectileState.Dead:
+			EnterDead(oldState);
+			break;
+		}
+
+		currState = newState;
+		timeInState = 0f;
+	}
+
+	void EnterWindup(ProjectileState exitState)
+	{
+
+	}
+
+	void ExitWindup(ProjectileState enterState)
+	{
+		
+	}
+
+	void EnterAirborne(ProjectileState exitState)
+	{
+
+	}
+
+	void ExitAirborne(ProjectileState enterState)
+	{
+		
+	}
+
+	void EnterLanded(ProjectileState exitState)
+	{
+
+	}
+
+	void ExitLanded(ProjectileState enterState)
+	{
+		
+	}
+
+	void EnterDead(ProjectileState exitState)
+	{
+		GameObject.Destroy(gameObject);
+	}
+
+	void ExitDead(ProjectileState enterState)
+	{
+		
+	}
+
 	public void StartThrow(float power)
 	{
 		//Debug.Log("Setting projectile power to " + power.ToString("f2"));
 		totalThrowTime = Mathf.Lerp(minThrowTime, maxThrowTime, power);
 		float realPower = totalThrowTime / maxThrowTime;
-		currTime = 0f;
-		currState = ProjectileState.Airborne;
+
+		// set position/scale factors for lerped animation
 		startPos = transform.position;
 		destPos = transform.position + transform.up * totalThrowTime * speed;
 		startScale = transform.localScale;
 		maxScale = startScale * maxScaleMod * realPower;
+
+		SetState(ProjectileState.Airborne);
 	}
 
 	// Update is called once per frame
 	void Update ()
 	{
+		timeInState += Time.deltaTime;
+
 		switch(currState)
 		{
+		case ProjectileState.Windup:
+			UpdateWindup();
+			break;
 		case ProjectileState.Airborne:
 			UpdateAirborne();
+			break;
+		case ProjectileState.Landed:
+			UpdateLanded();
+			break;
+		case ProjectileState.Dead:
+			UpdateDead();
 			break;
 		}
 	}
 
+	void UpdateWindup()
+	{
+
+	}
+
 	void UpdateAirborne()
 	{
-		currTime = currTime + Time.deltaTime;
-		currThrowProgress = currTime / totalThrowTime;
-		float scaleProgress = Mathf.SmoothStep(0,1,currThrowProgress);
+		//timeInState = timeInState + Time.deltaTime;
+		currStateProgress = timeInState / totalThrowTime;
+		float scaleProgress = Mathf.SmoothStep(0,1,currStateProgress);
 		float currScaleFactor = 1 - Mathf.Abs(scaleProgress - 0.5f) * 2;
-		float posProgress = (Mathf.SmoothStep(0, 1, 0.5f + currThrowProgress / 2) - 0.5f) * 2;
-		//Vector3 currPos = Vector3.Lerp(startPos,destPos,posProgress);
+		// float posProgress = (Mathf.SmoothStep(0, 1, 0.5f + currThrowProgress / 2) - 0.5f) * 2;
+
 		Vector3 currPos = Vector3.Lerp(startPos,destPos,scaleProgress);
 		Vector3 currScale = Vector3.Lerp(startScale,maxScale, currScaleFactor);
 		transform.position = currPos;
 		transform.localScale = currScale;
-		//transform.Translate(Vector3.up * speed * Time.deltaTime);
 
-		if (currTime >= totalThrowTime)
-			currState = ProjectileState.Landed;
+
+		if (timeInState >= totalThrowTime)
+			SetState(ProjectileState.Landed);
+	}
+
+	void UpdateLanded()
+	{
+		currStateProgress = timeInState / sinkTime;
+		transform.localScale = Vector3.Lerp(startScale,Vector3.zero,currStateProgress);
+		if (timeInState >= sinkTime)
+		{
+			SetState(ProjectileState.Dead);
+		}
+	}
+
+	void UpdateDead()
+	{
+
 	}
 
 	void OnDrawGizmos()
