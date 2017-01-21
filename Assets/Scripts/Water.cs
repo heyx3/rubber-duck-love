@@ -134,12 +134,12 @@ public class Water : Singleton<Water>
 		waves_directional.Clear();
 	}
 
-	public void Sample(Vector2 pos, out float height, out Vector3 normal)
+	public void Sample(Vector2 pos, out float height, out Vector3 normal, out Vector2 pushDir)
 	{
 		//Note that this exact same code is in the shader.
 
 		height = 0.0f;
-		Vector2 wavePush = Vector2.zero;
+		pushDir = Vector2.zero;
 
 		float currentT = Time.time;
 		for (int i = 0; i < waves_circular.Count; ++i)
@@ -168,7 +168,7 @@ public class Water : Singleton<Water>
 			height += waveScale * heightOffset;
 
 			float derivative = waveScale * Mathf.Cos(innerVal);
-			wavePush -= toCenter * derivative;
+			pushDir -= toCenter * derivative;
 		}
 		for (int i = 0; i < waves_directional.Count; ++i)
 		{
@@ -189,10 +189,10 @@ public class Water : Singleton<Water>
 			height += wave.Amplitude * heightOffset;
 
 			float derivative = wave.Amplitude * Mathf.Cos(innerVal);
-			wavePush += flowDir * derivative;
+			pushDir += flowDir * derivative;
 		}
 
-		normal = new Vector3(wavePush.x, wavePush.y, 0.0001f).normalized;
+		normal = new Vector3(pushDir.x, pushDir.y, 0.0001f).normalized;
 	}
 
 	protected override void Awake()
