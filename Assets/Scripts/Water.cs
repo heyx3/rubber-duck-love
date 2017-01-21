@@ -74,6 +74,7 @@ public class Water : Singleton<Water>
 	public float WaveFadeTime = 1.0f;
 	public float WaveDropoffRate = 3.0f,
 				 WaveSharpness = 2.0f;
+	public Vector3 LightDir = new Vector3(1.0f, 1.0f, -1.0f).normalized;
 
 	public AnimationCurve SimplePushDropoff = AnimationCurve.Linear(0.0f, 1.0f, 1.0f, 0.0f);
 
@@ -270,6 +271,7 @@ public class Water : Singleton<Water>
 		MyRenderer.SetPropertyBlock(waveArrayData);
 		MyRenderer.material.SetFloat("waveDropoffRate", WaveDropoffRate);
 		MyRenderer.material.SetFloat("waveSharpness", WaveSharpness);
+		MyRenderer.material.SetVector("lightDir", LightDir.normalized);
 	}
 
 
