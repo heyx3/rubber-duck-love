@@ -1,15 +1,21 @@
-﻿Shader "Water/Water"
+﻿//Shader that colors the surface of a quad using water ripples
+//    based on the world-space position of the fragments.
+//The ripples are controlled by the Water script.
+//There are two types of waves:
+//    * "Circular": rippling outwards from a point
+//    * "Directional": rippling along a direction
+//Note that Directional waves are messed up right now; don't use them yet.
+
+Shader "Water/Water"
 {
     Properties
     {
-        _MainTex("Sprite Texture", 2D) = "white" {}
-        [MaterialToggle] PixelSnap("Pixel snap", Float) = 0
-
+        _MainTex("Diffuse Tex", 2D) = "white" {}
         _Color("Tint", Color) = (1.0,1.0,1.0,1.0)
 
         _Ambient("Ambient light", Float) = 0.3
         _Diffuse("Diffuse light", Float) = 0.7
-        _Specular("Specular light", Float) = 1.0
+        _Specular("Specular light", Vector) = (10,10,10,10)
         _SpecIntensity("Specular intensity", Float) = 64.0
 
         _RippleCenterSize("Ripple center size", Float) = 0.2
@@ -19,11 +25,8 @@
         {
             Tags
             {
-                "Queue"="Transparent"
-                "IgnoreProjector" = "True"
                 "RenderType" = "Opaque"
                 "PreviewType" = "Plane"
-                "CanUseSpriteAtlas" = "True"
             }
 
             Cull Off
@@ -37,8 +40,6 @@
                 #pragma vertex vert
                 #pragma fragment frag
                 #pragma target 2.0
-                #pragma multi_compile _ PIXELSNAP_ON
-                #pragma multi_compile _ ETC1_EXTERNAL_ALPHA
                 #include "UnityCG.cginc"
 
                 struct appdata_t
@@ -60,21 +61,16 @@
                     OUT.vertex = UnityObjectToClipPos(IN.vertex);
                     OUT.uv = IN.texcoord;
 
-                    #ifdef PIXELSNAP_ON
-                    OUT.vertex = UnityPixelSnap(OUT.vertex);
-                    #endif
-
                     OUT.worldPos = mul(unity_ObjectToWorld, IN.vertex).xy;
 
                     return OUT;
                 }
 
                 sampler2D _MainTex;
-                sampler2D _AlphaTex;
 
-                float4 _MainTex_TexelSize;
                 float4 _Color;
                 
+                //Pack the wave data into vectors to reduce the number of uniforms.
                 #define MAX_WAVES_CIRCULAR 5
                 uniform float4 circular_AmpPerSpdStt[MAX_WAVES_CIRCULAR];
                 uniform float4 circular_PosDropTsc[MAX_WAVES_CIRCULAR];
@@ -90,7 +86,8 @@
                 uniform float waveSharpness = 2.0;
 
                 uniform float3 lightDir = float3(0.57735, 0.57735, -0.57735);
-                float _Ambient, _Diffuse, _Specular, _SpecIntensity;
+                float _Ambient, _Diffuse, _SpecIntensity;
+                float3 _Specular;
 
 
                 float getHeight(float2 worldPos)
@@ -184,7 +181,7 @@
                     return normFinal;
                 }
 
-                float getBrightness(float3 normal)
+                float3 getBrightness(float3 normal)
                 {
                     float brightness = _Ambient;
                     
@@ -196,9 +193,9 @@
                     //Use Blinn half angle modification for performance at the cost of accuracy.
                     //Keep in mind we're using an ortho projection.
                     float3 h = normalize(float3(0.0, 0.0, -1.0) - lightDir);
-                    brightness += _Specular * pow(saturate(dot(h, normal)), _SpecIntensity);
+                    float3 spec = _Specular * pow(saturate(dot(h, normal)), _SpecIntensity);
 
-                    return brightness;
+                    return float3(brightness, brightness, brightness) + spec;
                 }
 
 
@@ -206,23 +203,12 @@
                 {
                     float2 screenUV = IN.vertex.xy / _ScreenParams.xy;
                     fixed4 texColor = tex2D(_MainTex, screenUV);
-                #if ETC1_EXTERNAL_ALPHA
-                    // get the color from an external texture (usecase: Alpha support for ETC1 on android)
-                    texColor.a = tex2D(_AlphaTex, screenUV).r;
-                #endif //ETC1_EXTERNAL_ALPHA
                 
                     float height = getHeight(IN.worldPos);
                     float3 normal = getNormal(IN.worldPos);
-                    float brightness = getBrightness(normal);
-                    
-                    //return fixed4(0.5 + 0.5 * getFancyNormal(IN.worldPos), 1.0);
-                    
-                    float f = 0.5 + (0.5 * height);
-                    //return fixed4(f, f, f, 1.0);
+                    float3 brightness = getBrightness(normal);
 
-                    //return fixed4(brightness, brightness, brightness, 1.0);
-
-                    return texColor * _Color * brightness;
+                    return texColor * _Color * float4(brightness, 1.0);
                 }
             ENDCG
         }
