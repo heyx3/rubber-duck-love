@@ -25,6 +25,9 @@ public class AudioMgr : MonoBehaviour
     public AudioClip[] music;
     public AudioClip[] effects;
 
+    public AudioClip[] quacks;
+    public AudioClip[] splashes;
+
     public AudioSource ambient;
     public AudioSource bgm;
     public AudioSource sfx;
@@ -48,6 +51,8 @@ public class AudioMgr : MonoBehaviour
         if (newState == ProjectileState.Landed)
         {
             PlaySFX(SoundEffectType.kSplash);
+            int index = Random.Range(0, splashes.Length);
+            effects[(int)SoundEffectType.kSplash] = splashes[index];
         }
     }
 
@@ -77,13 +82,22 @@ public class AudioMgr : MonoBehaviour
 
     void Update()
     {
-        if (Input.GetMouseButtonDown(0))
+        if (Input.GetKey("1"))
         {
             Defeat();
         }
-        if (Input.GetMouseButtonDown(1))
+        if (Input.GetKey("2"))
         {
             Victory();
+        }
+        if (Input.GetKey("3"))
+        {
+            ambient.Stop();
+            bgm.Stop();
+        }
+        if (Input.GetKey("4"))
+        {
+            StartGame();
         }
         if (player.currState == PlayerState.Windup)
         {
