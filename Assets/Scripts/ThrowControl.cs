@@ -57,13 +57,13 @@ public class ThrowControl : MonoBehaviour
 	void Start ()
 	{
 		arrowGroup = arrowSlider.GetComponent<CanvasGroup>();
-		SetState(PlayerState.Aiming);
+		SetState(PlayerState.Startup);
 	}
 	
 	void SetState(PlayerState newState)
 	{
 		PlayerState oldState = currState;
-		Debug.Log("Changing Player State from '" + oldState.ToString() + "' to '" + newState.ToString() + "'");
+		//Debug.Log("Changing Player State from '" + oldState.ToString() + "' to '" + newState.ToString() + "'");
 		switch (oldState)
 		{
 		case PlayerState.Startup:
@@ -122,7 +122,9 @@ public class ThrowControl : MonoBehaviour
 
 	void EnterStartup(PlayerState exitState)
 	{
-
+		currAngle = 0f;
+		currFill = 0f;
+		fillIsUp = true;
 	}
 
 	void ExitStartup(PlayerState enterState)
@@ -328,6 +330,10 @@ public class ThrowControl : MonoBehaviour
 		else if (newState == GameState.Lose)
 		{
 			SetState(PlayerState.Lose);
+		}
+		else if (newState == GameState.Startup)
+		{
+			SetState(PlayerState.Startup);
 		}
 		// catch changes out of win or lose (back to aiming)
 		else if (newState == GameState.Playing &&

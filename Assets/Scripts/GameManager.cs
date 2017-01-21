@@ -17,8 +17,12 @@ public class GameManager : Singleton<GameManager>
 	public GameState currState;
 	public float timeInState;
 	public float startDuration = 1f;
-	public float winDuration = 2f;
-	public float loseDuration = 2f;
+	public float minWinDuration = 3f;
+	public float maxWinDuration = 10f;
+	public float minLoseDuration = 3f;
+	public float maxLoseDuration = 10f;
+	public bool promptedContinue = false;
+
 
 	public int startingRocks = 10;
 	public int currRockInventory = 0;
@@ -41,14 +45,14 @@ public class GameManager : Singleton<GameManager>
 	void Start ()
 	{
 		resetters = GameObject.FindObjectsOfType<TransformResetter>();
-		Debug.Log("Found " + resetters.Length.ToString() + " resetters");
+		// Debug.Log("Found " + resetters.Length.ToString() + " resetters");
 		SetState(GameState.Startup);
 	}
 	
 	void SetState(GameState newState)
 	{
 		GameState oldState = currState;
-		Debug.Log("Changing Game State from '" + oldState.ToString() + "' to '" + newState.ToString() + "'");
+		// Debug.Log("Changing Game State from '" + oldState.ToString() + "' to '" + newState.ToString() + "'");
 		switch (oldState)
 		{
 		case GameState.Startup:
@@ -87,6 +91,7 @@ public class GameManager : Singleton<GameManager>
 		}
 		currState = newState;
 		timeInState = 0f;
+		promptedContinue = false;
 
 		if (OnGameStateChange != null)
 		{
@@ -205,17 +210,33 @@ public class GameManager : Singleton<GameManager>
 
 	void UpdateWin()
 	{
-		if (timeInState >= winDuration)
+		if (timeInState >= maxWinDuration)
 		{
 			SetState(GameState.Startup);
+		}
+		if (timeInState >= minWinDuration && !promptedContinue)
+		{
+			UIManager.Instance.ShowContinuePanel();
+			if (Input.GetKeyDown(KeyCode.Space))
+			{
+				SetState(GameState.Startup);
+			}
 		}
 	}
 
 	void UpdateLose()
 	{
-		if (timeInState >= loseDuration)
+		if (timeInState >= maxLoseDuration)
 		{
 			SetState(GameState.Startup);
+		}
+		if (timeInState >= minLoseDuration && !promptedContinue)
+		{
+			UIManager.Instance.ShowContinuePanel();
+			if (Input.GetKeyDown(KeyCode.Space))
+			{
+				SetState(GameState.Startup);
+			}
 		}
 	}
 
