@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class WaterReader : MonoBehaviour {
 
-	private Water water;
+	private Transform tr;
 
 	public float height;
 	public Vector3 normal;
@@ -18,22 +18,24 @@ public class WaterReader : MonoBehaviour {
 	// Use this for initialization
 	void Start ()
 	{
-		water = Water.Instance;	
+		tr = transform;
 	}
 
 	// Update is called once per frame
 	void Update ()
 	{
-		Water.PositionSample sample = water.Sample(transform.position);
+		Water.PositionSample sample = Water.Instance.Sample(tr.position);
 		height = sample.Height;
 		normal = sample.Normal;
 		wavePushDir = sample.WavePushDir;
 		simplePushDir = sample.SimplePushDir;
+
 		tunedPushDir = wavePushDir * waveFactor + simplePushDir * pushFactor;
+
 		float oldMag = tunedPushDir.magnitude;
-		if (oldMag != 0)
+		if (System.Math.Abs(oldMag) > 0.0001f)
 		{
-			tunedPushDir = tunedPushDir / oldMag * Mathf.Clamp(oldMag, 0f, 1f);
+			tunedPushDir = tunedPushDir / oldMag * Mathf.Clamp01(oldMag);
 		}
 	}
 }
