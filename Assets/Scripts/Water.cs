@@ -4,7 +4,7 @@ using UnityEngine;
 
 
 [RequireComponent(typeof(Renderer))]
-public class Water : MonoBehaviour
+public class Water : Singleton<Water>
 {
 	public struct Wave_Circular
 	{
@@ -184,7 +184,7 @@ public class Water : MonoBehaviour
 		}
 	}
 
-	private void Awake()
+	protected override void Awake()
 	{
 		MyRenderer = GetComponent<Renderer>();
 		waveArrayData = new MaterialPropertyBlock();
