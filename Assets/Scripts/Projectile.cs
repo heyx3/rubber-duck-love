@@ -54,7 +54,7 @@ public class Projectile : MonoBehaviour
 	void SetState(ProjectileState newState)
 	{
 		ProjectileState oldState = currState;
-		//Debug.Log("Changing Projectile State from '" + oldState.ToString() + "' to '" + newState.ToString() + "'");
+		Debug.Log("Changing Projectile State from '" + oldState.ToString() + "' to '" + newState.ToString() + "'");
 
 		switch(oldState)
 		{
@@ -230,6 +230,15 @@ public class Projectile : MonoBehaviour
 		{
 			Gizmos.color = Color.blue;
 			Gizmos.DrawWireSphere(destPos, 1f);
+		}
+	}
+
+	void OnTriggerEnter2D(Collider2D other)
+	{
+		if (other.tag == "ProjectileBoundary" &&
+			currState == ProjectileState.Airborne)
+		{
+			SetState(ProjectileState.Dead);
 		}
 	}
 }
