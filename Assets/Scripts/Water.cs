@@ -45,7 +45,7 @@ public class Water : Singleton<Water>
 																	  timeTillEnd));
 
 			float cutoffTime = wave.StartTime + wave.Lifetime -
-							       (2.0f * wave.Dropoff / (wave.Period * wave.Speed));
+							       (2.0f * wave.Dropoff / wave.Speed);
 			wave.TimeSinceCutoff = Math.Max(0.0f, currentT - cutoffTime);
 
 			return wave;

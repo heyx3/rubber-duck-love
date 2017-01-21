@@ -8,7 +8,7 @@ public class WaterRider : MonoBehaviour
 {
 	public float maxAccel = 15f;
 	public float maxSpeed = 5f;
-	private Vector2 currVel = new Vector2();
+	//private Vector2 currVel = new Vector2();
 
 	private WaterReader reader;
 
