@@ -154,6 +154,37 @@ public class Water : Singleton<Water>
 		sample.SimplePushDir = Vector2.zero;
 		sample.WavePushDir = Vector2.zero;
 
+		Sample(pos, out sample.Height, out sample.SimplePushDir);
+
+		//Get the height at nearby fragments and compute the normal via cross-product.S
+		const float epsilon = 0.0001f;
+		Vector2 one_zero = new Vector2(pos.x + epsilon, pos.y),
+				nOne_zero = new Vector2(pos.x - epsilon, pos.y),
+				zero_one = new Vector2(pos.x, pos.y + epsilon),
+				zero_nOne = new Vector2(pos.x, pos.y - epsilon);
+		Vector3 p_zero_zero = new Vector3(pos.x, pos.y, sample.Height),
+				p_one_zero = new Vector3(one_zero.x, one_zero.y, SampleHeightOnly(one_zero)),
+				p_nOne_zero = new Vector3(nOne_zero.x, nOne_zero.y, SampleHeightOnly(nOne_zero)),
+				p_zero_one = new Vector3(zero_one.x, zero_one.y, SampleHeightOnly(zero_one)),
+				p_zero_nOne = new Vector3(zero_nOne.x, zero_nOne.y, SampleHeightOnly(zero_nOne));
+		Vector3 norm1 = Vector3.Cross((p_one_zero - p_zero_zero).normalized,
+									  (p_zero_one - p_zero_zero).normalized),
+				norm2 = Vector3.Cross((p_nOne_zero - p_zero_zero).normalized,
+									  (p_zero_nOne - p_zero_zero).normalized),
+				normFinal = ((norm1 * -Math.Sign(norm1.z)) +
+							 (norm2 * -Math.Sign(norm2.z))).normalized;
+
+		sample.Normal = normFinal;
+		sample.WavePushDir = new Vector2(sample.Normal.x, sample.Normal.y);
+		sample.Normal = new Vector3(sample.WavePushDir.x, sample.WavePushDir.y, 0.0001f).normalized;
+
+		return sample;
+	}
+	public void Sample(Vector2 pos, out float height, out Vector2 simplePushDir)
+	{
+		height = 0.0f;
+		simplePushDir = Vector2.zero;
+
 		float currentT = Time.time;
 		for (int i = 0; i < waves_circular.Count; ++i)
 		{
@@ -186,13 +217,10 @@ public class Water : Singleton<Water>
 
 			float heightOffset = Mathf.Sin(innerVal);
 			heightOffset = -1.0f + (2.0f * Mathf.Pow(0.5f + (0.5f * heightOffset),
-												     WaveSharpness));
+													 WaveSharpness));
 
-			sample.Height += waveScale * heightOffset;
-
-			float derivative = waveScale * Mathf.Cos(innerVal);
-			sample.WavePushDir += toCenter * derivative;
-			sample.SimplePushDir -= toCenter * SimplePushDropoff.Evaluate(1.0f - outerCutoff);
+			height += waveScale * heightOffset;
+			simplePushDir -= toCenter * SimplePushDropoff.Evaluate(1.0f - outerCutoff);
 		}
 		for (int i = 0; i < waves_directional.Count; ++i)
 		{
@@ -210,16 +238,69 @@ public class Water : Singleton<Water>
 			heightOffset = -1.0f + (2.0f * Mathf.Pow(0.5f + (0.5f * heightOffset),
 													 WaveSharpness));
 
-			sample.Height += wave.Amplitude * heightOffset;
+			height += wave.Amplitude * heightOffset;
+		}
+	}
+	public float SampleHeightOnly(Vector2 pos)
+	{
+		float height = 0.0f;
 
-			float derivative = wave.Amplitude * Mathf.Cos(innerVal);
-			sample.WavePushDir += flowDir * derivative;
-			sample.SimplePushDir -= flowDir;
+		float currentT = Time.time;
+		for (int i = 0; i < waves_circular.Count; ++i)
+		{
+			var wave = waves_circular[i];
+
+			float timeSinceCreated = currentT - wave.StartTime;
+
+			Vector2 toCenter = (wave.SourceWorldPos - pos);
+			float dist = toCenter.magnitude;
+			toCenter /= dist;
+
+			float heightScale = Mathf.Lerp(0.0f, 1.0f, 1.0f - (dist / wave.Dropoff));
+			heightScale = Mathf.Pow(heightScale, WaveDropoffRate);
+
+			float outerCutoff = Math.Min(wave.Dropoff, wave.Period * wave.Speed * timeSinceCreated);
+			if (dist > outerCutoff)
+				continue;
+			outerCutoff = Math.Max(0.0f, (outerCutoff - dist) / outerCutoff);
+
+			float innerCutoff = wave.Period * wave.Speed * wave.TimeSinceCutoff;
+			if (dist < innerCutoff)
+				continue;
+			innerCutoff = 1.0f - Mathf.Clamp01((innerCutoff - dist) / innerCutoff);
+			innerCutoff = Mathf.Pow(innerCutoff, 8.0f);
+
+			float cutoff = outerCutoff * innerCutoff;
+
+			float innerVal = (dist / wave.Period) + (-timeSinceCreated * wave.Speed);
+			float waveScale = wave.Amplitude * wave.LifetimeMultiplier * heightScale * cutoff;
+
+			float heightOffset = Mathf.Sin(innerVal);
+			heightOffset = -1.0f + (2.0f * Mathf.Pow(0.5f + (0.5f * heightOffset),
+													 WaveSharpness));
+
+			height += waveScale * heightOffset;
+		}
+		for (int i = 0; i < waves_directional.Count; ++i)
+		{
+			var wave = waves_directional[i];
+			float timeSinceCreated = currentT - wave.StartTime;
+
+			Vector2 flowDir = wave.Velocity;
+			float speed = flowDir.magnitude;
+			flowDir /= speed;
+
+			float dist = Vector2.Dot(flowDir, pos);
+
+			float innerVal = (dist / wave.Period) + (-timeSinceCreated * speed);
+			float heightOffset = Mathf.Sin(innerVal);
+			heightOffset = -1.0f + (2.0f * Mathf.Pow(0.5f + (0.5f * heightOffset),
+													 WaveSharpness));
+
+			height += wave.Amplitude * heightOffset;
 		}
 
-		sample.Normal = new Vector3(sample.WavePushDir.x, sample.WavePushDir.y, 0.0001f).normalized;
-
-		return sample;
+		return height;
 	}
 
 	protected override void Awake()
@@ -227,6 +308,10 @@ public class Water : Singleton<Water>
 		base.Awake();
 		MyRenderer = GetComponent<Renderer>();
 		waveArrayData = new MaterialPropertyBlock();
+	}
+	private void Start()
+	{
+		//AddWave(new Wave_Directional(1.0f, 0.5f, Time.time, Vector2.left * 1.0f));
 	}
 	private void Update()
 	{

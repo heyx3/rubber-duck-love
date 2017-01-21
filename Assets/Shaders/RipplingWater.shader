@@ -132,9 +132,9 @@ Shader "Water/Water"
                     }
                     for (int j = 0; j < directional_number; ++j)
                     {
-                        const float amplitude = directional_AmpPerStt[i].x,
-                                    period = directional_AmpPerStt[i].y,
-                                    startTime = directional_AmpPerStt[i].z;
+                        const float amplitude = directional_AmpPerStt[j].x,
+                                    period = directional_AmpPerStt[j].y,
+                                    startTime = directional_AmpPerStt[j].z;
 
                         float2 flowDir = directional_Velocity[j];
                         float speed = length(flowDir);
