@@ -5,7 +5,7 @@ using UnityEngine.UI;
 
 public enum PlayerState
 {
-	Dead = 0,
+	Startup = 0,
 	Aiming = 1,
 	Windup = 2,
 	Throwing = 3,
@@ -17,7 +17,7 @@ public enum PlayerState
 public class ThrowControl : MonoBehaviour
 {
 	[Header("State Variables")]
-	public PlayerState currState = PlayerState.Dead;
+	public PlayerState currState = PlayerState.Startup;
 	public float currAngle = 0;
 	public float currRawFill = 0.0f;
 	public float currFill = 0.0f;
@@ -35,6 +35,8 @@ public class ThrowControl : MonoBehaviour
 	public float maxAngle = 90f;
 	public float maxDegPerSec = 90;
 	public float maxFillPerSec = 1f;
+
+	private CanvasGroup arrowGroup;
 
 	// event messages
 	public delegate void PlayerStateChangeEvent(PlayerState oldState, PlayerState newState);
@@ -54,6 +56,7 @@ public class ThrowControl : MonoBehaviour
 	// Use this for initialization
 	void Start ()
 	{
+		arrowGroup = arrowSlider.GetComponent<CanvasGroup>();
 		SetState(PlayerState.Aiming);
 	}
 	
@@ -63,8 +66,8 @@ public class ThrowControl : MonoBehaviour
 		Debug.Log("Changing Player State from '" + oldState.ToString() + "' to '" + newState.ToString() + "'");
 		switch (oldState)
 		{
-		case PlayerState.Dead:
-			ExitDead(newState);
+		case PlayerState.Startup:
+			ExitStartup(newState);
 			break;
 		case PlayerState.Aiming:
 			ExitAiming(newState);
@@ -87,8 +90,8 @@ public class ThrowControl : MonoBehaviour
 		}
 		switch (newState)
 		{
-		case PlayerState.Dead:
-			EnterDead(oldState);
+		case PlayerState.Startup:
+			EnterStartup(oldState);
 			break;
 		case PlayerState.Aiming:
 			EnterAiming(oldState);
@@ -117,12 +120,12 @@ public class ThrowControl : MonoBehaviour
 		}
 	}
 
-	void EnterDead(PlayerState exitState)
+	void EnterStartup(PlayerState exitState)
 	{
 
 	}
 
-	void ExitDead(PlayerState enterState)
+	void ExitStartup(PlayerState enterState)
 	{
 
 	}
@@ -201,6 +204,8 @@ public class ThrowControl : MonoBehaviour
 
 	void UpdateUI()
 	{
+		arrowGroup.alpha = (GameManager.Instance.currState == GameState.Playing
+						   && GameManager.Instance.currRockInventory > 0) ? 1 : 0;
 		arrowSlider.transform.localRotation = Quaternion.Euler(0, 0, currAngle);
 		arrowSlider.value = currFill;
 	}
@@ -211,8 +216,8 @@ public class ThrowControl : MonoBehaviour
 
 		switch (currState)
 		{
-		case PlayerState.Dead:
-			UpdateDead();
+		case PlayerState.Startup:
+			UpdateStartup();
 			break;
 		case PlayerState.Aiming:
 			UpdateAiming();
@@ -238,7 +243,7 @@ public class ThrowControl : MonoBehaviour
 
 	}
 
-	void UpdateDead()
+	void UpdateStartup()
 	{
 
 	}
@@ -256,7 +261,7 @@ public class ThrowControl : MonoBehaviour
 
 			//arrowSlider.transform.localRotation = Quaternion.Euler(0, 0, currAngle);
 		}
-		else
+		else if (GameManager.Instance.currRockInventory > 0)
 		{
 			SetState(PlayerState.Windup);
 		}
@@ -295,6 +300,7 @@ public class ThrowControl : MonoBehaviour
 		Projectile proj = proj_obj.GetComponent<Projectile>();
 		proj.StartThrow(currFill);
 		SetState(PlayerState.Aiming);
+		GameManager.Instance.RockThrown();
 	}
 
 	void UpdatePostThrow()
@@ -325,7 +331,7 @@ public class ThrowControl : MonoBehaviour
 		}
 		// catch changes out of win or lose (back to aiming)
 		else if (newState == GameState.Playing &&
-				(oldState == GameState.Win || oldState == GameState.Lose))
+				(oldState == GameState.Win || oldState == GameState.Lose || oldState == GameState.Startup))
 		{
 			SetState(PlayerState.Aiming);
 		}

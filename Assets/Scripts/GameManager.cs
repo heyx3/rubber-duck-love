@@ -20,11 +20,17 @@ public class GameManager : Singleton<GameManager>
 	public float winDuration = 2f;
 	public float loseDuration = 2f;
 
+	public int startingRocks = 10;
+	public int currRockInventory = 0;
+	public int currRocksInAir = 0;
+
 	private TransformResetter[] resetters;
 
 	// event messages
 	public delegate void GameStateChangeEvent(GameState oldState, GameState newState);
 	public static event GameStateChangeEvent OnGameStateChange;
+	public delegate void GameProjectileEvent(bool isThrowNotDead);
+	public static event GameProjectileEvent OnProjectileEvent;
 
 	protected override void Awake()
 	{
@@ -90,18 +96,21 @@ public class GameManager : Singleton<GameManager>
 
 	void EnterStartup(GameState exitState)
 	{
-		if (exitState == GameState.Lose || exitState == GameState.Win)
-		{
-			ResetGameState();
-		}
+			ResetGameState(exitState);
 	}
 
-	void ResetGameState()
+	void ResetGameState(GameState exitState)
 	{
+		currRockInventory = startingRocks;
+
 		Water.Instance.ClearWaves();
-		for (int i = 0; i < resetters.Length; i++)
+
+		if (exitState == GameState.Lose || exitState == GameState.Win)
 		{
-			resetters[i].ResetXForm();
+			for (int i = 0; i < resetters.Length; i++)
+			{
+				resetters[i].ResetXForm();
+			}
 		}
 	}
 
@@ -183,7 +192,10 @@ public class GameManager : Singleton<GameManager>
 
 	void UpdatePlaying()
 	{
-
+		if (currRockInventory <= 0 && currRocksInAir <= 0)
+		{
+			SetState(GameState.Lose);
+		}
 	}
 
 	void UpdatePaused()
@@ -211,5 +223,27 @@ public class GameManager : Singleton<GameManager>
 	{
 		Debug.Log("You hit the target!");
 		SetState(GameState.Win);
+	}
+
+	public void RockThrown()
+	{
+		currRockInventory--;
+		currRocksInAir++;
+		if (currRockInventory < 0)
+		{
+			Debug.Log("WTF WE THREW MORE ROCKS THAN WE OWN!");
+		}
+		if (OnProjectileEvent != null)
+		{
+			OnProjectileEvent(true);
+		}
+	}
+	public void RockDead()
+	{
+		currRocksInAir--;
+		if (OnProjectileEvent != null)
+		{
+			OnProjectileEvent(false);
+		}
 	}
 }

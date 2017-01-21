@@ -141,6 +141,7 @@ public class Projectile : MonoBehaviour
 
 	void EnterDead(ProjectileState exitState)
 	{
+		GameManager.Instance.RockDead();
 		GameObject.Destroy(gameObject);
 	}
 
