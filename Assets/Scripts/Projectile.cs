@@ -232,4 +232,13 @@ public class Projectile : MonoBehaviour
 			Gizmos.DrawWireSphere(destPos, 1f);
 		}
 	}
+
+	void OnTriggerEnter2D(Collider2D other)
+	{
+		if (other.tag == "ProjectileBoundary" &&
+			currState == ProjectileState.Airborne)
+		{
+			SetState(ProjectileState.Landed);
+		}
+	}
 }
