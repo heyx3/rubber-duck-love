@@ -19,6 +19,13 @@ Shader "Water/Water"
         _SpecIntensity("Specular intensity", Float) = 64.0
 
         _RippleCenterSize("Ripple center size", Float) = 0.2
+
+        _LakeFloorTex("Lake Floor Texture", 2D) = "black" {}
+        _Clearness("Water clearness", Float) = 0.5
+        _LakeDepth("Lake Floor Depth", Float) = -10.0
+        _LakeFloorUVScale("Lake Floor UV Scale", Vector) = (1,1,0,0)
+        _IndexOfRefraction("Index of Refraction", Float) = 0.1
+        _RefractExaggeration("Refraction Exaggeration", Float) = 1.0
     }
 
         SubShader
@@ -198,6 +205,11 @@ Shader "Water/Water"
                     return float3(brightness, brightness, brightness) + spec;
                 }
 
+                sampler2D _LakeFloorTex;
+                float _Clearness, _LakeFloorDepth;
+                float2 _LakeFloorUVScale;
+                float _IndexOfRefraction, _RefractExaggeration;
+
 
                 fixed4 frag(v2f IN) : SV_Target
                 {
@@ -208,7 +220,22 @@ Shader "Water/Water"
                     float3 normal = getNormal(IN.worldPos);
                     float3 brightness = getBrightness(normal);
 
-                    return texColor * _Color * float4(brightness, 1.0);
+                    //Refract the line-of-sight ray and see where it hits the lake floor.
+                    float3 refracted = refract(float3(0.0, 0.0, -1.0),
+                                               normalize(normal * float3(1.0, 1.0, _RefractExaggeration)),
+                                               _IndexOfRefraction);
+                    float rayT = (height - _LakeFloorDepth) / refracted.z;
+                    float3 lakeFloorPos = float3(IN.worldPos, height) +
+                                          (rayT * refracted);
+
+                    //Sample the lake floor.
+                    float3 lakeFloorColor = tex2D(_LakeFloorTex, _LakeFloorUVScale * lakeFloorPos.xy).rgb;
+
+                    float3 finalColor = brightness * lerp(texColor * _Color,
+                                                          lakeFloorColor,
+                                                          _Clearness);
+
+                    return float4(finalColor, 1.0);
                 }
             ENDCG
         }
