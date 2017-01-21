@@ -16,6 +16,7 @@ public class GameManager : Singleton<GameManager>
 
 	public GameState currState;
 	public float timeInState;
+	public float startDuration = 1f;
 	public float winDuration = 2f;
 	public float loseDuration = 2f;
 
@@ -34,12 +35,14 @@ public class GameManager : Singleton<GameManager>
 	void Start ()
 	{
 		resetters = GameObject.FindObjectsOfType<TransformResetter>();
+		Debug.Log("Found " + resetters.Length.ToString() + " resetters");
 		SetState(GameState.Startup);
 	}
 	
 	void SetState(GameState newState)
 	{
 		GameState oldState = currState;
+		Debug.Log("Changing Game State from '" + oldState.ToString() + "' to '" + newState.ToString() + "'");
 		switch (oldState)
 		{
 		case GameState.Startup:
@@ -167,7 +170,10 @@ public class GameManager : Singleton<GameManager>
 
 	void UpdateStartup()
 	{
-
+		if (timeInState >= startDuration)
+		{
+			SetState(GameState.Playing);
+		}
 	}
 
 	void UpdatePlaying()

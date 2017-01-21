@@ -60,6 +60,7 @@ public class ThrowControl : MonoBehaviour
 	void SetState(PlayerState newState)
 	{
 		PlayerState oldState = currState;
+		Debug.Log("Changing Player State from '" + oldState.ToString() + "' to '" + newState.ToString() + "'");
 		switch (oldState)
 		{
 		case PlayerState.Dead:
