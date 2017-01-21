@@ -78,6 +78,8 @@ public class Water : Singleton<Water>
 
 	public AnimationCurve SimplePushDropoff = AnimationCurve.Linear(0.0f, 1.0f, 1.0f, 0.0f);
 
+	public Camera WorldCam;
+
 	public Renderer MyRenderer { get; private set; }
 
 	private List<Wave_Circular> waves_circular = new List<Wave_Circular>();
