@@ -67,18 +67,12 @@
                 float4 _Color;
                 
                 #define MAX_WAVES_CIRCULAR 5
-                uniform float circular_amplitude[MAX_WAVES_CIRCULAR];
-                uniform float circular_period[MAX_WAVES_CIRCULAR];
-                uniform float circular_speed[MAX_WAVES_CIRCULAR];
-                uniform float circular_startTime[MAX_WAVES_CIRCULAR];
-                uniform float circular_dropoff[MAX_WAVES_CIRCULAR];
-                uniform float2 circular_startWorldPos[MAX_WAVES_CIRCULAR];
+                uniform float4 circular_AmpPerSpdStt[MAX_WAVES_CIRCULAR];
+                uniform float3 circular_PosDrop[MAX_WAVES_CIRCULAR];
                 uniform int circular_number = 0;
                 #define MAX_WAVES_DIRECTIONAL 5
-                uniform float directional_amplitude[MAX_WAVES_DIRECTIONAL];
-                uniform float directional_period[MAX_WAVES_DIRECTIONAL];
-                uniform float directional_startTime[MAX_WAVES_DIRECTIONAL];
-                uniform float2 directional_velocity[MAX_WAVES_DIRECTIONAL];
+                uniform float3 directional_AmpPerStt[MAX_WAVES_DIRECTIONAL];
+                uniform float2 directional_Velocity[MAX_WAVES_DIRECTIONAL];
                 uniform int directional_number = 0;
 
                 uniform float waveDropoffRate = 3.0;
@@ -89,16 +83,24 @@
                     float waveHeight = 0.0;
                     for (int i = 0; i < circular_number; ++i)
                     {
-                        float timeSinceCreated = _Time.y - circular_startTime[i];
-                        float dist = distance(circular_startWorldPos[i], worldPos);
-                        float heightScale = max(0.0, lerp(0.0, 1.0, 1.0 - (dist / circular_dropoff[i])));
+                        const float amplitude = circular_AmpPerSpdStt[i].x,
+                                    period = circular_AmpPerSpdStt[i].y,
+                                    speed = circular_AmpPerSpdStt[i].z,
+                                    startTime = circular_AmpPerSpdStt[i].w,
+                                    dropoff = circular_PosDrop[i].z;
+                        const float2 startPos = circular_PosDrop[i].xy;
+
+
+                        float timeSinceCreated = _Time.y - startTime;
+                        float dist = distance(startPos, worldPos);
+                        float heightScale = max(0.0, lerp(0.0, 1.0, 1.0 - (dist / dropoff)));
                         heightScale = pow(heightScale, waveDropoffRate);
 
-                        float cutoff = circular_period[i] * circular_speed[i] * timeSinceCreated;
+                        float cutoff = period * speed * timeSinceCreated;
                         cutoff = max(0.0, (cutoff - dist) / cutoff);
 
-                        float innerVal = (dist / circular_period[i]) + (-timeSinceCreated * circular_speed[i]);
-                        float waveScale = circular_amplitude[i] * heightScale * cutoff;
+                        float innerVal = (dist / period) + (-timeSinceCreated * speed);
+                        float waveScale = amplitude * heightScale * cutoff;
 
                         float heightOffset = sin(innerVal);
                         heightOffset = -1.0 + (2.0 * pow(0.5 + (0.5 * heightOffset),
@@ -108,16 +110,17 @@
                     }
                     for (int j = 0; j < directional_number; ++j)
                     {
-                        float2 flowDir = directional_velocity[j];
+                        const float amplitude = directional_AmpPerStt[i].x,
+                                    period = directional_AmpPerStt[i].y,
+                                    startTime = directional_AmpPerStt[i].z;
+
+                        float2 flowDir = directional_Velocity[j];
                         float speed = length(flowDir);
                         flowDir /= speed;
 
-                        const float amplitude = directional_amplitude[j];
-                        const float period = directional_period[j];
-                        float timeSinceCreated = directional_startTime[j] - _Time.y;
+                        float timeSinceCreated = startTime - _Time.y;
 
                         float dist = dot(flowDir, worldPos);
-
                         float innerVal = (dist / period) + (-timeSinceCreated * speed);
                         float waveScale = amplitude;
 

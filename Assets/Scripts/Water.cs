@@ -143,7 +143,7 @@ public class Water : MonoBehaviour
 			cutoff = Math.Max(0.0f, (cutoff - dist) / cutoff);
 
 			float innerVal = (dist / wave.Period) + (-timeSinceCreated * wave.Speed);
-			float waveScale = wave.Amplitude * heightScale * cutoff;
+			float waveScale = wave.Amplitude * GetLifetimeMultiplier(i) * heightScale * cutoff;
 
 			float heightOffset = Mathf.Sin(innerVal);
 			heightOffset = -1.0f + (2.0f * Mathf.Pow(0.5f + (0.5f * heightOffset),
@@ -193,31 +193,24 @@ public class Water : MonoBehaviour
 		//Set material parameters.
 		for (int i = 0; i < waves_circular.Count; ++i)
 		{
-			arr_circ_amp[i] = waves_circular[i].Amplitude * GetLifetimeMultiplier(i);
-			arr_circ_per[i] = waves_circular[i].Period;
-			arr_circ_spd[i] = waves_circular[i].Speed;
-			arr_circ_stt[i] = waves_circular[i].StartTime;
-			arr_circ_dro[i] = waves_circular[i].Dropoff;
-			arr_circ_pos[i] = waves_circular[i].SourceWorldPos;
+			var wave = waves_circular[i];
+			arr_circ_AmpPerSpdStt[i] = new Vector4(wave.Amplitude * GetLifetimeMultiplier(i),
+												   wave.Period,
+												   wave.Speed, wave.StartTime);
+			arr_circ_PosDrop[i] = new Vector4(wave.SourceWorldPos.x, wave.SourceWorldPos.y,
+											  wave.Dropoff);
 		}
 		for (int i = 0; i < waves_directional.Count; ++i)
 		{
-			arr_dir_amp[i] = waves_directional[i].Amplitude;
-			arr_dir_per[i] = waves_directional[i].Period;
-			arr_dir_stt[i] = waves_directional[i].StartTime;
-			arr_dir_vel[i] = waves_directional[i].Velocity;
+			var wave = waves_directional[i];
+			arr_dir_AmpPerStt[i] = new Vector3(wave.Amplitude, wave.Period, wave.StartTime);
+			arr_dir_Vel[i] = wave.Velocity;
 		}
-		waveArrayData.SetFloatArray("circular_amplitude", arr_circ_amp);
-		waveArrayData.SetFloatArray("circular_period", arr_circ_per);
-		waveArrayData.SetFloatArray("circular_speed", arr_circ_spd);
-		waveArrayData.SetFloatArray("circular_startTime", arr_circ_stt);
-		waveArrayData.SetFloatArray("circular_dropoff", arr_circ_dro);
-		waveArrayData.SetVectorArray("circular_startWorldPos", arr_circ_pos);
+		waveArrayData.SetVectorArray("circular_AmpPerSpdStt", arr_circ_AmpPerSpdStt);
+		waveArrayData.SetVectorArray("circular_PosDrop", arr_circ_PosDrop);
 		MyRenderer.material.SetInt("circular_number", waves_circular.Count);
-		waveArrayData.SetFloatArray("directional_amplitude", arr_dir_amp);
-		waveArrayData.SetFloatArray("directional_period", arr_dir_per);
-		waveArrayData.SetFloatArray("directional_startTime", arr_dir_stt);
-		waveArrayData.SetVectorArray("directional_velocity", arr_dir_vel);
+		waveArrayData.SetVectorArray("directional_AmpPerStt", arr_dir_AmpPerStt);
+		waveArrayData.SetVectorArray("directional_Velocity", arr_dir_Vel);
 		MyRenderer.material.SetInt("directional_number", waves_directional.Count);
 		MyRenderer.SetPropertyBlock(waveArrayData);
 		MyRenderer.material.SetFloat("waveDropoffRate", WaveDropoffRate);
@@ -226,14 +219,8 @@ public class Water : MonoBehaviour
 
 
 	//Arrays for storing the values that go into the Material:
-	private static float[] arr_circ_amp = new float[MaxWaves_Circular],
-						   arr_circ_per = new float[MaxWaves_Circular],
-						   arr_circ_spd = new float[MaxWaves_Circular],
-						   arr_circ_stt = new float[MaxWaves_Circular],
-						   arr_circ_dro = new float[MaxWaves_Circular],
-						   arr_dir_amp = new float[MaxWaves_Directional],
-						   arr_dir_per = new float[MaxWaves_Directional],
-						   arr_dir_stt = new float[MaxWaves_Directional];
-	private static Vector4[] arr_circ_pos = new Vector4[MaxWaves_Circular],
-							 arr_dir_vel = new Vector4[MaxWaves_Directional];
+	private static Vector4[] arr_circ_AmpPerSpdStt = new Vector4[MaxWaves_Circular],
+							 arr_circ_PosDrop = new Vector4[MaxWaves_Circular],
+							 arr_dir_AmpPerStt = new Vector4[MaxWaves_Directional],
+							 arr_dir_Vel = new Vector4[MaxWaves_Directional];
 }
