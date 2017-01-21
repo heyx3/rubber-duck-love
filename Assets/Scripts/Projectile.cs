@@ -54,7 +54,7 @@ public class Projectile : MonoBehaviour
 	void SetState(ProjectileState newState)
 	{
 		ProjectileState oldState = currState;
-		Debug.Log("Changing Projectile State from '" + oldState.ToString() + "' to '" + newState.ToString() + "'");
+		//Debug.Log("Changing Projectile State from '" + oldState.ToString() + "' to '" + newState.ToString() + "'");
 
 		switch(oldState)
 		{
