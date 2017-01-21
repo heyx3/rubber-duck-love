@@ -57,7 +57,7 @@ public class ThrowControl : MonoBehaviour
 	void Start ()
 	{
 		arrowGroup = arrowSlider.GetComponent<CanvasGroup>();
-		SetState(PlayerState.Aiming);
+		SetState(PlayerState.Startup);
 	}
 	
 	void SetState(PlayerState newState)
@@ -330,6 +330,10 @@ public class ThrowControl : MonoBehaviour
 		else if (newState == GameState.Lose)
 		{
 			SetState(PlayerState.Lose);
+		}
+		else if (newState == GameState.Startup)
+		{
+			SetState(PlayerState.Startup);
 		}
 		// catch changes out of win or lose (back to aiming)
 		else if (newState == GameState.Playing &&

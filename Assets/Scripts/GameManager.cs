@@ -17,10 +17,11 @@ public class GameManager : Singleton<GameManager>
 	public GameState currState;
 	public float timeInState;
 	public float startDuration = 1f;
-	public float winDuration = 2f;
-	public float loseDuration = 2f;
-	public float winTimeToContinue = 3f;
-	public float loseTimeToContinue = 3f;
+	public float minWinDuration = 3f;
+	public float maxWinDuration = 10f;
+	public float minLoseDuration = 3f;
+	public float maxLoseDuration = 10f;
+	public bool promptedContinue = false;
 
 
 	public int startingRocks = 10;
@@ -90,6 +91,7 @@ public class GameManager : Singleton<GameManager>
 		}
 		currState = newState;
 		timeInState = 0f;
+		promptedContinue = false;
 
 		if (OnGameStateChange != null)
 		{
@@ -208,7 +210,7 @@ public class GameManager : Singleton<GameManager>
 
 	void UpdateWin()
 	{
-		if (timeInState >= winDuration)
+		if (timeInState >= maxWinDuration)
 		{
 			SetState(GameState.Startup);
 		}
@@ -216,7 +218,7 @@ public class GameManager : Singleton<GameManager>
 
 	void UpdateLose()
 	{
-		if (timeInState >= loseDuration)
+		if (timeInState >= maxLoseDuration)
 		{
 			SetState(GameState.Startup);
 		}
