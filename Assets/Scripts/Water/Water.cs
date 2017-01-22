@@ -53,7 +53,7 @@ public class Water : Singleton<Water>
 	}
 
 
-	public static readonly int MaxWaves_Circular = 10;
+	public static readonly int MaxWaves_Circular = 20;
 
 
 	public float WaveFadeTime = 1.0f;
@@ -160,12 +160,12 @@ public class Water : Singleton<Water>
 			heightScale = Mathf.Pow(heightScale, WaveDropoffRate);
 
 			float outerCutoff = Math.Min(wave.Dropoff, wave.Period * wave.Speed * timeSinceCreated);
-			if (dist > outerCutoff)
+			if (dist >= outerCutoff)
 				continue;
-			outerCutoff = Math.Max(0.0f, (outerCutoff - dist) / outerCutoff);
+			outerCutoff = (outerCutoff - dist) / outerCutoff;
 
 			float innerCutoff = wave.Period * wave.Speed * wave.TimeSinceCutoff;
-			if (dist < innerCutoff)
+			if (dist <= innerCutoff)
 				continue;
 			innerCutoff = 1.0f - Mathf.Clamp01((innerCutoff - dist) / innerCutoff);
 			innerCutoff = Mathf.Pow(innerCutoff, 8.0f);

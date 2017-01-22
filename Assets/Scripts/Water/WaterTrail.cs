@@ -10,7 +10,8 @@ public class WaterTrail : MonoBehaviour
 				 Speed = 50.0f,
 				 Lifetime = 1.0f,
 				 Dropoff = 20.0f;
-	public float Interval = 1.0f;
+	public float MinInterval = 1.0f,
+				 MaxInterval = 1.5f;
 
 
 	private Transform myTr;
@@ -30,9 +31,9 @@ public class WaterTrail : MonoBehaviour
 	{
 		Vector2 newPos = myTr.position;
 		distTillNext -= (newPos - lastPos).magnitude;
-		if (distTillNext < 0.0f)
+		while (distTillNext < 0.0f)
 		{
-			distTillNext += Interval;
+			distTillNext += UnityEngine.Random.Range(MinInterval, MaxInterval);
 			Water.Instance.AddWave(new Water.Wave_Circular(Amplitude, Period, Speed, Time.time,
 														   Dropoff, newPos, Lifetime));
 		}
