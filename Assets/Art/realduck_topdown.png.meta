@@ -1,12 +1,14 @@
 fileFormatVersion: 2
 guid: 0d93f1b94603a024e9e47242c200dcf6
-timeCreated: 1485037264
+timeCreated: 1485107899
 licenseType: Free
 TextureImporter:
   fileIDToRecycleName:
     21300000: realduck_topdown_0
     21300002: realduck_topdown_1
     21300004: realduck_topdown_2
+    21300006: realduck_topdown_3
+    21300008: realduck_topdown_4
   serializedVersion: 4
   mipmaps:
     mipMapMode: 0
@@ -77,9 +79,9 @@ TextureImporter:
       rect:
         serializedVersion: 2
         x: 0
-        y: 19
-        width: 62
-        height: 27
+        y: 0
+        width: 64
+        height: 64
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -90,9 +92,9 @@ TextureImporter:
       rect:
         serializedVersion: 2
         x: 64
-        y: 19
-        width: 62
-        height: 27
+        y: 0
+        width: 64
+        height: 64
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -103,9 +105,35 @@ TextureImporter:
       rect:
         serializedVersion: 2
         x: 128
-        y: 18
-        width: 62
-        height: 27
+        y: 0
+        width: 64
+        height: 64
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      tessellationDetail: 0
+    - serializedVersion: 2
+      name: realduck_topdown_3
+      rect:
+        serializedVersion: 2
+        x: 192
+        y: 0
+        width: 64
+        height: 64
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      tessellationDetail: 0
+    - serializedVersion: 2
+      name: realduck_topdown_4
+      rect:
+        serializedVersion: 2
+        x: 256
+        y: 0
+        width: 64
+        height: 64
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
