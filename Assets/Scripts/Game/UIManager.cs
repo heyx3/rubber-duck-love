@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 public class UIManager  : Singleton<UIManager>
 {
@@ -13,6 +14,7 @@ public class UIManager  : Singleton<UIManager>
 	public CanvasGroup explosionPanel;
 	public CanvasGroup outOfRocksPanel;
 
+	public Text startText;
 	public Text outofRocksText;
 	public Text rockCountLabel;
 
@@ -68,10 +70,15 @@ public class UIManager  : Singleton<UIManager>
 
 		UpdateProjectileCount();
 
-		// if (oldState == GameState.Win)
-		// {
-			StopAllCoroutines();
-		// }
+		StopCoroutine(DoExplosion());
+		if (oldState == GameState.Win)
+		{
+			StopCoroutine(DoScoreRollup());
+		}
+		if (newState == GameState.Startup)
+		{
+			UpdateStartText();
+		}
 	}
 
 	void Update()
@@ -85,10 +92,13 @@ public class UIManager  : Singleton<UIManager>
 		outofRocksText.text = "OUT OF ROCKS" +
 							  ((timeLeft >= 11.0f) ? "" : ("\n" + timeLeft.ToString("n0") + " sec"));
 
+	}
 
-		if (timeLeft >= 11.0f)
-		{
-		}
+	void UpdateStartText()
+	{
+		startText.text = "Level "
+						 + SceneManager.GetActiveScene().buildIndex.ToString()
+						 + "\n\nREADY?";
 	}
 
 	void UpdateProjectileCount()
@@ -117,7 +127,7 @@ public class UIManager  : Singleton<UIManager>
 	void HandleScoreManagerWin(int completionBonus, int rockBonus, int timeBonus,
 							   int scoreThisRound, int lastScore, int currentScore)
 	{
-		Debug.Log("Got ScoreManager Win!");
+		// Debug.Log("Got ScoreManager Win!");
 		levelPointsText.text = "+ " + completionBonus.ToString("n0");
 		rocksPointsText.text = "+ " + rockBonus.ToString("n0");
 		timePointsText.text = "+ " + timeBonus.ToString("n0");
