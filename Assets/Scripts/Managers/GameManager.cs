@@ -98,7 +98,7 @@ public class GameManager : Singleton<GameManager>
 			EnterWin(oldState);
 			break;
 		case GameState.Lose:
-			ExitWin(oldState);
+			EnterLose(oldState);
 			break;			
 		}
 		currState = newState;
