@@ -78,7 +78,7 @@ Shader "Water/Water"
                 float4 _Color;
                 
                 //Pack the wave data into vectors to reduce the number of uniforms.
-                #define MAX_WAVES_CIRCULAR 5
+                #define MAX_WAVES_CIRCULAR 10
                 uniform float4 circular_AmpPerSpdStt[MAX_WAVES_CIRCULAR];
                 uniform float4 circular_PosDropTsc[MAX_WAVES_CIRCULAR];
                 uniform int circular_number = 0;
