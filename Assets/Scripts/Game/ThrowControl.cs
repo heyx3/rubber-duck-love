@@ -324,7 +324,7 @@ public class ThrowControl : MonoBehaviour
 
 	void UpdatePostThrow()
 	{
-		Debug.Log("In Postthrow");
+		// Debug.Log("In Postthrow");
 		if (timeInState > postThrowDuration)
 		{
 			SetState(PlayerState.Aiming);
