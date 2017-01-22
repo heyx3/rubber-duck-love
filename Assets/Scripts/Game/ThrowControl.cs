@@ -35,6 +35,7 @@ public class ThrowControl : MonoBehaviour
 	public float maxAngle = 90f;
 	public float maxDegPerSec = 90;
 	public float maxFillPerSec = 1f;
+	public float windupAimSpeedMod = 0.5f;
 
 	private CanvasGroup arrowGroup;
 
@@ -255,13 +256,7 @@ public class ThrowControl : MonoBehaviour
 		// allow aiming unless windup button is pressed
 		if (!windupButtonPressed)
 		{
-			float newAngle = Mathf.Clamp(currAngle
-				+ Input.GetAxis("Horizontal") * -maxDegPerSec * Time.deltaTime,
-				-maxAngle, maxAngle);
-
-			currAngle = newAngle;
-
-			//arrowSlider.transform.localRotation = Quaternion.Euler(0, 0, currAngle);
+			UpdateArrowAngle();
 		}
 		else if (GameManager.Instance.currRockInventory > 0)
 		{
@@ -269,8 +264,21 @@ public class ThrowControl : MonoBehaviour
 		}
 	}
 
+	void UpdateArrowAngle()
+	{
+			float newAngle = Mathf.Clamp(currAngle
+				+ Input.GetAxis("Horizontal") * -maxDegPerSec * 
+				(currState == PlayerState.Windup ? windupAimSpeedMod : 1f)
+				* Time.deltaTime,
+				-maxAngle, maxAngle);
+
+			currAngle = newAngle;
+	}
+
 	void UpdateWindup()
 	{
+		UpdateArrowAngle();
+
 		if (windupButtonPressed)
 		{
 			float newRawFill = Mathf.Clamp(currRawFill + (fillIsUp ? 1 : -1)
