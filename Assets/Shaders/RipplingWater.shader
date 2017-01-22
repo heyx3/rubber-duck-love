@@ -27,6 +27,13 @@ Shader "Water/Water"
         _LakeFloorUVScale("Lake Floor UV Scale", Vector) = (1,1,0,0)
         _IndexOfRefraction("Index of Refraction", Float) = 0.1
         _RefractExaggeration("Refraction Exaggeration", Float) = 1.0
+
+        _NormalMap1("Normal Map 1", 2D) = "white" {}
+        _NormalMap2("Normal Map 2", 2D) = "white" {}
+
+        _NormalMapsPan("Normal Maps Pan (xy and zw)", Vector) = (0.1,0.04,0.0,0.05)
+        _NormalMapsScale("Normal Maps Scale (xy and zw)", Vector) = (1,1,1,1)
+        _NormalMapsStrength("Normal Maps Strength (x and y)", Vector) = (1,1,0,0)
     }
 
         SubShader
@@ -138,7 +145,8 @@ Shader "Water/Water"
 
                     return waveHeight;
                 }
-                float3 getNormal(float2 worldPos)
+                float3 getNormal(float2 worldPos,
+                                 out float3 normal, out float3 tangent, out float3 bitangent)
                 {
                     const float3 epsilon = float3(0.0001, -0.0001, 0.0);
 
@@ -155,13 +163,20 @@ Shader "Water/Water"
                            p_zero_one = float3(zero_one, getHeight(zero_one)),
                            p_zero_nOne = float3(zero_nOne, getHeight(zero_nOne));
 
-                    float3 norm1 = cross(normalize(p_one_zero - p_zero_zero),
-                                         normalize(p_zero_one - p_zero_zero)),
-                           norm2 = cross(normalize(p_nOne_zero - p_zero_zero),
-                                         normalize(p_zero_nOne - p_zero_zero)),
-                           normFinal = normalize((norm1 * sign(norm1.z)) +
+                    float3 tan1 = normalize(p_one_zero - p_zero_zero),
+                           bitan1 = normalize(p_zero_one - p_zero_zero),
+                           tan2 = normalize(p_nOne_zero - p_zero_zero),
+                           bitan2 = normalize(p_zero_nOne - p_zero_zero);
+                    float3 norm1 = cross(tan1, bitan1),
+                           norm2 = cross(tan2, bitan2);
+                    norm1 *= sign(norm1.z);
+                    norm2 *= sign(norm2.z);
+                    float3 normFinal = normalize((norm1 * sign(norm1.z)) +
                                                  (norm2 * sign(norm2.z)));
 
+                    normal = normFinal;
+                    tangent = tan1;
+                    bitangent = bitan1;
                     return normFinal;
                 }
 
@@ -188,15 +203,38 @@ Shader "Water/Water"
                 float2 _LakeFloorUVScale;
                 float _IndexOfRefraction, _RefractExaggeration;
 
+                sampler2D _NormalMap1, _NormalMap2;
+                float4 _NormalMapsPan, _NormalMapsScale;
+                float2 _NormalMapsStrength;
+
 
                 fixed4 frag(v2f IN) : SV_Target
                 {
                     float2 screenUV = IN.vertex.xy / _ScreenParams.xy;
                     fixed4 texColor = tex2D(_MainTex, screenUV);
+
+
+                    //Calculate normal mapping.
+                    float2 normalMapUV1 = (_Time.y * _NormalMapsPan.xy) + (_NormalMapsScale.xy * screenUV),
+                           normalMapUV2 = (_Time.y * _NormalMapsPan.zw) + (_NormalMapsScale.zw * screenUV);
+                    float3 normalMap1 = -1.0f + (2.0f * tex2D(_NormalMap1, normalMapUV1).xyz),
+                           normalMap2 = -1.0f + (2.0f * tex2D(_NormalMap2, normalMapUV2).xyz);
+                    float3 invStrength3 = float3(1.0 / _NormalMapsStrength, 1.0);
+                    normalMap1 = normalize(normalMap1 * invStrength3.zzx);
+                    normalMap2 = normalize(normalMap2 * invStrength3.zzy);
+                    float3 combinedNormalMap = normalize(float3(normalMap1.xy + normalMap2.xy, normalMap1.z));
                 
+                    //Sample/shade the water:
                     float height = getHeight(IN.worldPos);
-                    float3 normal = getNormal(IN.worldPos);
+                    float3 normal, tangent, bitangent;
+                    getNormal(IN.worldPos, normal, tangent, bitangent);
+
+                    float3x3 tbn = float3x3(tangent, bitangent, normal);
+                    normal = normalize(mul(tbn, combinedNormalMap));
+
                     float3 brightness = getBrightness(normal);
+                    //return fixed4(brightness, 1.0);
+
 
                     //Refract the line-of-sight ray and see where it hits the lake floor.
                     float3 refracted = refract(float3(0.0, 0.0, -1.0),
