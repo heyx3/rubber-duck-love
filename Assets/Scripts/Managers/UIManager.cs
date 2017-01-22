@@ -150,7 +150,7 @@ public class UIManager  : Singleton<UIManager>
 		float maxMove = 25f;
 		//Vector3 maxPos = rt.anchoredPosition3D + new Vector2(10,10,10);
 		float time = 0f;
-		float maxTime = 1f;
+		float maxTime = 2f;
 		RectTransform rt = explosionPanel.transform as RectTransform;
 		while (time < maxTime)
 		{

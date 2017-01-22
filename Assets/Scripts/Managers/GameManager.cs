@@ -244,7 +244,7 @@ public class GameManager : Singleton<GameManager>
 		if (timeInState >= minWinDuration && !promptedContinue)
 		{
 			UIManager.Instance.ShowContinuePanel();
-			if (Input.GetKeyDown(KeyCode.Space))
+			if (Input.GetButtonDown("Throw"))
 			{
                 SceneManager.LoadScene(nextscene);
             }
@@ -260,7 +260,7 @@ public class GameManager : Singleton<GameManager>
 		if (timeInState >= minLoseDuration && !promptedContinue)
 		{
 			UIManager.Instance.ShowContinuePanel();
-			if (Input.GetKeyDown(KeyCode.Space))
+			if (Input.GetButtonDown("Throw"))
 			{
 				SetState(GameState.Startup);
 			}
