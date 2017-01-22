@@ -9,7 +9,7 @@ public class ParticleToggle : MonoBehaviour {
 
     public void OnWin( GameState oldState, GameState newState )
     {
-        if (oldState == GameState.Win )
+        if (oldState == GameState.Win || newState == GameState.Startup || newState == GameState.Playing)
         {
             particles.gameObject.SetActive(false);
         }

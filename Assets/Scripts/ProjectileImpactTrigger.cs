@@ -27,5 +27,10 @@ public class ProjectileImpactTrigger : MonoBehaviour {
 			parentProj.ProcessImpact(ProjectileImpactType.RealDuck);
 			readyForImpact = false;
 		}
+		else if (other.tag == "RockLobstacle" )
+		{
+			parentProj.ProcessImpact(ProjectileImpactType.Rock);
+			readyForImpact = false;
+		}
 	}
 }
