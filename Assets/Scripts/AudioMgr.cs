@@ -40,6 +40,39 @@ public class AudioMgr : MonoBehaviour
     {
         Instance = this;
         Projectile.OnProjectileStageChange += Throw;
+        ThrowControl.OnPlayerStateChange += Player;
+    }
+
+    private void Player(PlayerState oldState, PlayerState newState)
+    {
+        if (newState == PlayerState.Startup)
+        {
+            StartGame();
+        }
+        if (newState == PlayerState.Windup)
+        {
+            if (!throwing)
+            {
+                thrower.Play();
+                throwing = true;
+            }
+        }
+        if (newState != PlayerState.Windup)
+        {
+            if (throwing)
+            {
+                thrower.Stop();
+                throwing = false;
+            }
+        }
+        if (newState == PlayerState.Win)
+        {
+            Victory();
+        }
+        if (newState == PlayerState.Lose)
+        {
+            Defeat();
+        }
     }
 
     private void Throw(ProjectileState oldState, ProjectileState newState, ProjectileType type)
@@ -54,12 +87,6 @@ public class AudioMgr : MonoBehaviour
             int index = Random.Range(0, splashes.Length);
             effects[(int)SoundEffectType.kSplash] = splashes[index];
         }
-    }
-
-    void Start()
-    {
-        ambient.clip = background;
-        StartGame();
     }
 
     public void StopAll()
@@ -82,40 +109,11 @@ public class AudioMgr : MonoBehaviour
 
     void Update()
     {
-        if (Input.GetKey("1"))
-        {
-            Defeat();
-        }
-        if (Input.GetKey("2"))
-        {
-            Victory();
-        }
         if (Input.GetKey("3"))
         {
             ambient.Stop();
             bgm.Stop();
         }
-        if (Input.GetKey("4"))
-        {
-            StartGame();
-        }
-        if (player.currState == PlayerState.Windup)
-        {
-            if (!throwing)
-            {
-                thrower.Play();
-                throwing = true;
-            }
-        }
-        if (player.currState != PlayerState.Windup)
-        {
-            if (throwing)
-            {
-                thrower.Stop();
-                throwing = false;
-            }
-        }
-
     }
 
     public void Victory()
