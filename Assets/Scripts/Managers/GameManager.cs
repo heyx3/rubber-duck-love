@@ -43,6 +43,8 @@ public class GameManager : Singleton<GameManager>
 	public static event GameWinEvent OnWin;
 	public delegate void GameLoseEvent();
 	public static event GameLoseEvent OnLose;
+	public delegate void RockDropEvent();
+	public static event RockDropEvent OnRockDrop;
 
 	protected override void Awake()
 	{
@@ -282,6 +284,8 @@ public class GameManager : Singleton<GameManager>
 	{
 		currRockInventory = Mathf.Max(0, currRockInventory - 1);
 		UIManager.Instance.ExplosionResponse();
+		if (OnRockDrop != null)
+			OnRockDrop();
 	}
 
 	public void RockThrown()

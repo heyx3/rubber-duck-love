@@ -36,8 +36,12 @@ public class ProjectileImpactTrigger : MonoBehaviour {
 			readyForImpact = false;
 			break;
 		case "Mine":
-			parentProj.ProcessImpact(ProjectileImpactType.Mine);
-			readyForImpact = false;
+			ExplodingObstacle xo = other.GetComponent<ExplodingObstacle>();
+			if (xo.readyToExplode)
+			{
+				parentProj.ProcessImpact(ProjectileImpactType.Mine);
+				readyForImpact = false;
+			}
 			break;
 		}
 	}
