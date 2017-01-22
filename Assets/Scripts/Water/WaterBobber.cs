@@ -4,6 +4,7 @@ using UnityEngine;
 
 
 [RequireComponent(typeof(WaterReader))]
+[RequireComponent(typeof(SpriteTr))]
 public class WaterBobber : MonoBehaviour
 {
 	public Sprite Sprite_Normal, Sprite_BobLeft, Sprite_BobRight,
@@ -11,7 +12,7 @@ public class WaterBobber : MonoBehaviour
 
 	public float ZThreshold = 0.25f;
 
-	private Transform tr;
+	private SpriteTr tr;
 	private SpriteRenderer spr;
 	private WaterReader reader;
 
@@ -19,13 +20,13 @@ public class WaterBobber : MonoBehaviour
 	private void Awake()
 	{
 		spr = GetComponentInChildren<SpriteRenderer>();
-		tr = transform;
+		tr = GetComponent<SpriteTr>();
 		reader = GetComponent<WaterReader>();
 	}
 	
 	private void Update()
 	{
-		Vector3 pos3 = tr.position;
+		Vector3 pos3 = tr.MyTr.position;
 
 		if (reader.normal.z > ZThreshold)
 		{
@@ -33,8 +34,8 @@ public class WaterBobber : MonoBehaviour
 		}
 		else
 		{
-			float dotForward = Vector2.Dot(reader.normal, MyForward),
-				  dotRightward = Vector2.Dot(reader.normal, MyRight);
+			float dotForward = Vector2.Dot(reader.normal, tr.Forward),
+				  dotRightward = Vector2.Dot(reader.normal, tr.Right);
 			float absDotForward = Math.Abs(dotForward),
 				  absDotRightward = Math.Abs(dotRightward);
 			if (dotForward > 0.0f && dotForward > absDotRightward)
@@ -45,31 +46,6 @@ public class WaterBobber : MonoBehaviour
 				spr.sprite = Sprite_BobRight;
 			else
 				spr.sprite = Sprite_BobLeft;
-		}
-	}
-
-	private Vector2 MyForward
-	{
-		get
-		{
-			var forward3 = tr.right;
-			return new Vector2(forward3.x, forward3.y);
-		}
-		set
-		{
-			tr.right = new Vector3(value.x, value.y, 0.0f);
-		}
-	}
-	private Vector2 MyRight
-	{
-		get
-		{
-			var right3 = -tr.up;
-			return new Vector2(right3.x, right3.y);
-		}
-		set
-		{
-			tr.up = -new Vector3(value.x, value.y, 0.0f);
 		}
 	}
 }
