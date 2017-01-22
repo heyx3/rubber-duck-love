@@ -52,23 +52,8 @@ public class Water : Singleton<Water>
 		}
 	}
 
-	public struct Wave_Directional
-	{
-		public float Amplitude, Period, StartTime;
-		public Vector2 Velocity;
 
-		public Wave_Directional(float amplitude, float period, float startTime, Vector2 velocity)
-		{
-			Amplitude = amplitude;
-			Period = period;
-			StartTime = startTime;
-			Velocity = velocity;
-		}
-	}
-
-
-	public static readonly int MaxWaves_Circular = 5,
-							   MaxWaves_Directional = 5;
+	public static readonly int MaxWaves_Circular = 5;
 
 
 	public float WaveFadeTime = 1.0f;
@@ -83,7 +68,6 @@ public class Water : Singleton<Water>
 	public Renderer MyRenderer { get; private set; }
 
 	private List<Wave_Circular> waves_circular = new List<Wave_Circular>();
-	private List<Wave_Directional> waves_directional = new List<Wave_Directional>();
 	private MaterialPropertyBlock waveArrayData;
 	
 
@@ -110,33 +94,9 @@ public class Water : Singleton<Water>
 
 		waves_circular.Add(circularWave);
 	}
-	public void AddWave(Wave_Directional directionalWave)
-	{
-		while (waves_directional.Count >= MaxWaves_Directional)
-		{
-			//Remove the oldest wave.
-			float currentT = Time.time;
-			int oldest = 0;
-			float oldestLife = currentT - waves_directional[oldest].StartTime;
-			for (int i = 1; i < waves_directional.Count; ++i)
-			{
-				float tempLife = currentT - waves_directional[i].StartTime;
-				if (tempLife > oldestLife)
-				{
-					oldestLife = tempLife;
-					oldest = i;
-				}
-			}
-
-			waves_directional.RemoveAt(oldest);
-		}
-
-		waves_directional.Add(directionalWave);
-	}
 	public void ClearWaves()
 	{
 		waves_circular.Clear();
-		waves_directional.Clear();
 	}
 
 	public struct PositionSample
@@ -222,24 +182,6 @@ public class Water : Singleton<Water>
 			height += waveScale * heightOffset;
 			simplePushDir -= toCenter * SimplePushDropoff.Evaluate(1.0f - outerCutoff);
 		}
-		for (int i = 0; i < waves_directional.Count; ++i)
-		{
-			var wave = waves_directional[i];
-			float timeSinceCreated = currentT - wave.StartTime;
-
-			Vector2 flowDir = wave.Velocity;
-			float speed = flowDir.magnitude;
-			flowDir /= speed;
-
-			float dist = Vector2.Dot(flowDir, pos);
-
-			float innerVal = (dist / wave.Period) + (-timeSinceCreated * speed);
-			float heightOffset = Mathf.Sin(innerVal);
-			heightOffset = -1.0f + (2.0f * Mathf.Pow(0.5f + (0.5f * heightOffset),
-													 WaveSharpness));
-
-			height += wave.Amplitude * heightOffset;
-		}
 	}
 	public float SampleHeightOnly(Vector2 pos)
 	{
@@ -280,24 +222,6 @@ public class Water : Singleton<Water>
 													 WaveSharpness));
 
 			height += waveScale * heightOffset;
-		}
-		for (int i = 0; i < waves_directional.Count; ++i)
-		{
-			var wave = waves_directional[i];
-			float timeSinceCreated = currentT - wave.StartTime;
-
-			Vector2 flowDir = wave.Velocity;
-			float speed = flowDir.magnitude;
-			flowDir /= speed;
-
-			float dist = Vector2.Dot(flowDir, pos);
-
-			float innerVal = (dist / wave.Period) + (-timeSinceCreated * speed);
-			float heightOffset = Mathf.Sin(innerVal);
-			heightOffset = -1.0f + (2.0f * Mathf.Pow(0.5f + (0.5f * heightOffset),
-													 WaveSharpness));
-
-			height += wave.Amplitude * heightOffset;
 		}
 
 		return height;
@@ -343,18 +267,9 @@ public class Water : Singleton<Water>
 			arr_circ_PosDropTsc[i] = new Vector4(wave.SourceWorldPos.x, wave.SourceWorldPos.y,
 											     wave.Dropoff, wave.TimeSinceCutoff);
 		}
-		for (int i = 0; i < waves_directional.Count; ++i)
-		{
-			var wave = waves_directional[i];
-			arr_dir_AmpPerStt[i] = new Vector3(wave.Amplitude, wave.Period, wave.StartTime);
-			arr_dir_Vel[i] = wave.Velocity;
-		}
 		waveArrayData.SetVectorArray("circular_AmpPerSpdStt", arr_circ_AmpPerSpdStt);
 		waveArrayData.SetVectorArray("circular_PosDropTsc", arr_circ_PosDropTsc);
 		MyRenderer.material.SetInt("circular_number", waves_circular.Count);
-		waveArrayData.SetVectorArray("directional_AmpPerStt", arr_dir_AmpPerStt);
-		waveArrayData.SetVectorArray("directional_Velocity", arr_dir_Vel);
-		MyRenderer.material.SetInt("directional_number", waves_directional.Count);
 		MyRenderer.SetPropertyBlock(waveArrayData);
 		MyRenderer.material.SetFloat("waveDropoffRate", WaveDropoffRate);
 		MyRenderer.material.SetFloat("waveSharpness", WaveSharpness);
@@ -364,7 +279,5 @@ public class Water : Singleton<Water>
 
 	//Arrays for storing the values that go into the Material:
 	private static Vector4[] arr_circ_AmpPerSpdStt = new Vector4[MaxWaves_Circular],
-							 arr_circ_PosDropTsc = new Vector4[MaxWaves_Circular],
-							 arr_dir_AmpPerStt = new Vector4[MaxWaves_Directional],
-							 arr_dir_Vel = new Vector4[MaxWaves_Directional];
+							 arr_circ_PosDropTsc = new Vector4[MaxWaves_Circular];
 }
