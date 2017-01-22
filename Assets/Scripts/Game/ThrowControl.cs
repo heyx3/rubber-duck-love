@@ -196,7 +196,8 @@ public class ThrowControl : MonoBehaviour
 
 	void ProcessInput()
 	{
-		windupButtonPressed = Input.GetAxisRaw("Vertical") != 0.0f || Input.GetKey(KeyCode.Space);
+		//windupButtonPressed = Input.GetAxis("Vertical") != 0.0f || Input.GetButton("Throw");
+		windupButtonPressed = Input.GetButton("Throw");
 	}
 
 	void SetFill(float rawFill)
