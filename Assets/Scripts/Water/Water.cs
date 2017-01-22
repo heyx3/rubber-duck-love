@@ -53,7 +53,7 @@ public class Water : Singleton<Water>
 	}
 
 
-	public static readonly int MaxWaves_Circular = 5;
+	public static readonly int MaxWaves_Circular = 10;
 
 
 	public float WaveFadeTime = 1.0f;
