@@ -23,7 +23,7 @@ public class WinBrakes : MonoBehaviour
 	}
 
 	// Use this for initialization
-	void Start ()
+	void Awake ()
 	{
 		rb2d = GetComponent<Rigidbody2D>();
 		startDrag = rb2d.drag;
