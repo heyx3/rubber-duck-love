@@ -16,6 +16,16 @@ public enum ProjectileState
 	Dead = 3
 }
 
+public enum ProjectileImpactType
+{
+	Grass = 0,
+	Rock = 1,
+	Boat = 2,
+	Mine = 3,
+	RubberDuck = 4,
+	RealDuck = 5
+}
+
 public class Projectile : MonoBehaviour
 {
 	[Header("State Variables")]
@@ -49,7 +59,8 @@ public class Projectile : MonoBehaviour
 													ProjectileState newState,
 													ProjectileType type);
 	public static event ProjectileStateChangeEvent OnProjectileStageChange;
-
+	public delegate void ProjectileImpactEvent(ProjectileImpactType impactType, ProjectileType type);
+	public static event ProjectileImpactEvent OnProjectileImpact;
 
 	// Use this for initialization
 	void Start ()
@@ -248,7 +259,17 @@ public class Projectile : MonoBehaviour
 		if (other.tag == "ProjectileBoundary" &&
 			currState == ProjectileState.Airborne)
 		{
+			ProcessImpact(ProjectileImpactType.Grass);
 			SetState(ProjectileState.Dead);
+		}
+	}
+
+	public void ProcessImpact(ProjectileImpactType impactType)
+	{
+		Debug.Log("PROJECTILE impact type '" + impactType.ToString() + "'");
+		if (OnProjectileImpact != null)
+		{
+			OnProjectileImpact(impactType, type);
 		}
 	}
 }
