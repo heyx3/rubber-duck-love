@@ -96,7 +96,6 @@ public class WinCelebration : MonoBehaviour
 			Water.Instance.AddWave(new Water.Wave_Circular(Rand(MinAmplitude, MaxAmplitude),
 														   Rand(MinPeriod, MaxPeriod),
 														   Rand(MinSpeed, MaxSpeed),
-														   Time.time,
 														   Rand(MinDropoff, MaxDropoff),
 														   new Vector2(Rand(RandomRippleRegion.xMin,
 																			RandomRippleRegion.xMax),

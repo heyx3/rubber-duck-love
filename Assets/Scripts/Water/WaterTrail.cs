@@ -34,7 +34,7 @@ public class WaterTrail : MonoBehaviour
 		while (distTillNext < 0.0f)
 		{
 			distTillNext += UnityEngine.Random.Range(MinInterval, MaxInterval);
-			Water.Instance.AddWave(new Water.Wave_Circular(Amplitude, Period, Speed, Time.time,
+			Water.Instance.AddWave(new Water.Wave_Circular(Amplitude, Period, Speed,
 														   Dropoff, newPos, Lifetime));
 		}
 		lastPos = newPos;

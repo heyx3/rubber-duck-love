@@ -19,13 +19,14 @@ public class Water : Singleton<Water>
 
 
 		public Wave_Circular(float amplitude, float period, float speed,
-							 float startTime, float dropoff, Vector2 sourceWorldPos,
+							 float dropoff, Vector2 sourceWorldPos,
 							 float lifeTime)
 		{
+			StartTime = Time.timeSinceLevelLoad;
+
 			Amplitude = amplitude;
 			Period = period;
 			Speed = speed;
-			StartTime = startTime;
 			Dropoff = dropoff;
 			SourceWorldPos = sourceWorldPos;
 			Lifetime = lifeTime;
@@ -77,7 +78,7 @@ public class Water : Singleton<Water>
 		while (waves_circular.Count >= MaxWaves_Circular)
 		{
 			//Remove the oldest wave.
-			float currentT = Time.time;
+			float currentT = Time.timeSinceLevelLoad;
 			int oldest = 0;
 			float oldestLife = currentT - waves_circular[oldest].StartTime;
 			for (int i = 1; i < waves_circular.Count; ++i)
@@ -94,8 +95,6 @@ public class Water : Singleton<Water>
 		}
 
 		waves_circular.Add(circularWave);
-
-		Debug.Log(waves_circular.Count);
 	}
 	public void ClearWaves()
 	{
@@ -148,7 +147,7 @@ public class Water : Singleton<Water>
 		height = 0.0f;
 		simplePushDir = Vector2.zero;
 
-		float currentT = Time.time;
+		float currentT = Time.timeSinceLevelLoad;
 		for (int i = 0; i < waves_circular.Count; ++i)
 		{
 			var wave = waves_circular[i];
@@ -190,7 +189,7 @@ public class Water : Singleton<Water>
 	{
 		float height = 0.0f;
 
-		float currentT = Time.time;
+		float currentT = Time.timeSinceLevelLoad;
 		for (int i = 0; i < waves_circular.Count; ++i)
 		{
 			var wave = waves_circular[i];
@@ -236,14 +235,10 @@ public class Water : Singleton<Water>
 		MyRenderer = GetComponent<Renderer>();
 		waveArrayData = new MaterialPropertyBlock();
 	}
-	private void Start()
-	{
-		//AddWave(new Wave_Directional(1.0f, 0.5f, Time.time, Vector2.left * 1.0f));
-	}
 	private void Update()
 	{
 		//Update circular ripples and remove any dead ones.
-		float currentT = Time.time;
+		float currentT = Time.timeSinceLevelLoad;
 		for (int i = 0; i < waves_circular.Count; ++i)
 		{
 			float lifeLength = currentT - waves_circular[i].StartTime;
