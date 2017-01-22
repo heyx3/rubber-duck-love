@@ -19,6 +19,9 @@ public class UIManager  : Singleton<UIManager>
 	public Text rocksPointsText;
 	public Text totalAwardText;
 	public Text yourScoreText;
+	private float startScore;
+	private float targetScore;
+	private float currScore;
 
 
 	void OnEnable()
@@ -55,6 +58,11 @@ public class UIManager  : Singleton<UIManager>
 		continuePanel.alpha = 0f;
 
 		UpdateProjectileCount();
+
+		if (oldState == GameState.Win)
+		{
+			StopAllCoroutines();
+		}
 	}
 
 	void UpdateProjectileCount()
@@ -88,7 +96,24 @@ public class UIManager  : Singleton<UIManager>
 		rocksPointsText.text = "+ " + rockBonus.ToString("n0");
 		timePointsText.text = "+ " + timeBonus.ToString("n0");
 		totalAwardText.text = "+ " + scoreThisRound.ToString("n0");
-		yourScoreText.text = currentScore.ToString("n0");
+		yourScoreText.text = lastScore.ToString("n0");
+		startScore = lastScore;
+		targetScore = currentScore;
+		StartCoroutine(DoScoreRollup());
+	}
+
+	IEnumerator DoScoreRollup()
+	{
+		float lerpTime = 0;
+		float maxLerpTime = 1.0f;
+
+		while (lerpTime < maxLerpTime)
+		{
+			lerpTime = Mathf.Min(maxLerpTime, lerpTime + Time.deltaTime);
+			currScore = Mathf.Lerp(startScore, targetScore, lerpTime / maxLerpTime);
+			yourScoreText.text = currScore.ToString("n0");
+			yield return null;
+		}
 	}
 
 }
