@@ -5,19 +5,21 @@ using UnityEngine;
 public class PlayerAnimationManager : MonoBehaviour {
 
     [SerializeField]
-    private ThrowControl throwControl;
-    [SerializeField]
     private Animator animator;
 
     public void OnThrow(PlayerState oldState, PlayerState newState)
     {
         if (newState == PlayerState.Throwing)
         {
-            animator.SetInteger("throw state", 1);
+            animator.SetTrigger("Throw Trigger");
         }
-        else
+        else if ( newState == PlayerState.Lose)
         {
-            animator.SetInteger("throw state", 0);
+                animator.SetTrigger("Lose Trigger");
+        }
+        else if ( newState == PlayerState.Startup)
+        {
+            animator.SetTrigger("Startup Trigger");
         }
     }
 
