@@ -37,6 +37,8 @@ public class GameManager : Singleton<GameManager>
 	public static event GameStateChangeEvent OnGameStateChange;
 	public delegate void GameProjectileEvent(bool isThrowNotDead);
 	public static event GameProjectileEvent OnProjectileEvent;
+	public delegate void GameWinEvent(float timeInPlay, int endingRocks, int startingRocks);
+	public static event GameWinEvent OnWin;
 
 	protected override void Awake()
 	{
@@ -149,7 +151,10 @@ public class GameManager : Singleton<GameManager>
 
 	void EnterWin(GameState exitState)
 	{
-
+		if (OnWin != null)
+		{
+			OnWin(timeInState,currRockInventory,startingRocks);
+		}
 	}
 
 	void ExitWin(GameState enterState)
