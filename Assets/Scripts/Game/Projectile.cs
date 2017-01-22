@@ -266,7 +266,7 @@ public class Projectile : MonoBehaviour
 
 	public void ProcessImpact(ProjectileImpactType impactType)
 	{
-		Debug.Log("PROJECTILE impact type '" + impactType.ToString() + "'");
+		// Debug.Log("PROJECTILE impact type '" + impactType.ToString() + "'");
 		if (OnProjectileImpact != null)
 		{
 			OnProjectileImpact(impactType, type);

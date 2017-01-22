@@ -9,19 +9,34 @@ public class TagLooker : MonoBehaviour {
 	private Transform tagTransform;
 	private Rigidbody2D rb2d;
 
+	void OnEnable()
+	{
+		GameManager.OnWin += HandleWin;
+	}
+
+	void OnDisable()
+	{
+		GameManager.OnWin -= HandleWin;
+	}
+
 	// Use this for initialization
 	void Start ()
 	{
 		tagTransform = GameObject.FindGameObjectWithTag(targetTag).transform;
 		rb2d = GetComponent<Rigidbody2D>();
-		StartRotate();
 	}
 	
+	void HandleWin(float foo, int bar, int baz)
+	{
+		StartRotate();
+	}
 	// Update is called once per frame
 	public void StartRotate ()
 	{
 		if (rb2d != null)
 			rb2d.angularVelocity = 0f;
-		transform.LookAt(tagTransform);
+			Vector3 direction = (tagTransform.position - transform.position).normalized;
+			transform.right = direction;
+		//transform.LookAt(tagTransform);
 	}
 }
