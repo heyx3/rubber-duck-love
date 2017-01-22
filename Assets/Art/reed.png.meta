@@ -1,6 +1,6 @@
 fileFormatVersion: 2
 guid: 31f6152bcd2f6b046a60117e19729c78
-timeCreated: 1485097563
+timeCreated: 1485098115
 licenseType: Free
 TextureImporter:
   fileIDToRecycleName:
@@ -78,10 +78,10 @@ TextureImporter:
       name: reed_0
       rect:
         serializedVersion: 2
-        x: 24
-        y: 3
-        width: 27
-        height: 57
+        x: 0
+        y: 0
+        width: 64
+        height: 64
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -91,10 +91,10 @@ TextureImporter:
       name: reed_1
       rect:
         serializedVersion: 2
-        x: 88
-        y: 3
-        width: 27
-        height: 53
+        x: 64
+        y: 0
+        width: 64
+        height: 64
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -104,10 +104,10 @@ TextureImporter:
       name: reed_2
       rect:
         serializedVersion: 2
-        x: 153
-        y: 3
-        width: 22
-        height: 57
+        x: 128
+        y: 0
+        width: 64
+        height: 64
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -117,10 +117,10 @@ TextureImporter:
       name: reed_3
       rect:
         serializedVersion: 2
-        x: 216
-        y: 3
-        width: 26
-        height: 51
+        x: 192
+        y: 0
+        width: 64
+        height: 64
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -130,10 +130,10 @@ TextureImporter:
       name: reed_4
       rect:
         serializedVersion: 2
-        x: 281
-        y: 3
-        width: 27
-        height: 57
+        x: 256
+        y: 0
+        width: 64
+        height: 64
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
