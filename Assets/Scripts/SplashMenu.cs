@@ -34,13 +34,13 @@ public class SplashMenu : MonoBehaviour
             {
                 if (instruction.GetBool("visible") == true)
                 {
-                    if (Input.GetKeyDown(KeyCode.Space))
+                    if (Input.GetButtonDown("Throw"))
                     {
                         SceneManager.LoadScene(1);
                     }
 
                 }
-                if (Input.GetKeyDown(KeyCode.C))
+                if (Input.GetButtonDown("Quack"))
                 {
                     bool cred = credits.GetBool("visible");
                     credits.SetBool("visible", !cred);

@@ -22,6 +22,7 @@ public class ThrowControl : MonoBehaviour
 	public float currRawFill = 0.0f;
 	public float currFill = 0.0f;
 	public bool fillIsUp = true;
+	public float timeInState;
 
 	[Header("Input State Variables")]
 	public bool windupButtonPressed;
@@ -36,6 +37,7 @@ public class ThrowControl : MonoBehaviour
 	public float maxDegPerSec = 90;
 	public float maxFillPerSec = 1f;
 	public float windupAimSpeedMod = 0.5f;
+	public float postThrowDuration = 0.5f;
 
 	private CanvasGroup arrowGroup;
 
@@ -114,6 +116,7 @@ public class ThrowControl : MonoBehaviour
 			break;			
 		}
 		currState = newState;
+		timeInState = 0f;
 
 		if (OnPlayerStateChange != null)
 		{
@@ -209,6 +212,7 @@ public class ThrowControl : MonoBehaviour
 	void UpdateUI()
 	{
 		arrowGroup.alpha = (GameManager.Instance.currState == GameState.Playing
+						   && currState != PlayerState.PostThrow
 						   && GameManager.Instance.currRockInventory > 0) ? 1 : 0;
 		arrowSlider.transform.localRotation = Quaternion.Euler(0, 0, currAngle);
 		arrowSlider.value = currFill;
@@ -216,6 +220,8 @@ public class ThrowControl : MonoBehaviour
 	// Update is called once per frame
 	void Update ()
 	{
+		timeInState += Time.deltaTime;
+
 		ProcessInput();
 
 		switch (currState)
@@ -233,7 +239,7 @@ public class ThrowControl : MonoBehaviour
 			UpdateThrowing();
 			break;
 		case PlayerState.PostThrow:
-			UpdateThrowing();
+			UpdatePostThrow();
 			break;			
 		case PlayerState.Win:
 			UpdateWin();
@@ -312,13 +318,17 @@ public class ThrowControl : MonoBehaviour
 								  arrowSlider.transform.rotation);
 		Projectile proj = proj_obj.GetComponent<Projectile>();
 		proj.StartThrow(currFill);
-		SetState(PlayerState.Aiming);
+		SetState(PlayerState.PostThrow);
 		GameManager.Instance.RockThrown();
 	}
 
 	void UpdatePostThrow()
 	{
-
+		// Debug.Log("In Postthrow");
+		if (timeInState > postThrowDuration)
+		{
+			SetState(PlayerState.Aiming);
+		}
 	}
 
 	void UpdateWin()

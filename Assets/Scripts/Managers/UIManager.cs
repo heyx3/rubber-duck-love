@@ -150,11 +150,11 @@ public class UIManager  : Singleton<UIManager>
 		float maxMove = 25f;
 		//Vector3 maxPos = rt.anchoredPosition3D + new Vector2(10,10,10);
 		float time = 0f;
-		float maxTime = 1f;
+		float maxTime = 1.5f;
 		RectTransform rt = explosionPanel.transform as RectTransform;
 		while (time < maxTime)
 		{
-			time = Mathf.Min(1.0f, time + Time.deltaTime);
+			time = Mathf.Min(maxTime, time + Time.deltaTime);
 			float lerpFactor = time / maxTime;
 			Vector3 shakeVec = new Vector3(Random.value * maxMove, Random.value * maxMove, 0f) * (1 - lerpFactor);
 			explosionPanel.alpha = 1.0f - lerpFactor;

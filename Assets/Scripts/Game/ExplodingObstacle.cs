@@ -42,9 +42,9 @@ public class ExplodingObstacle : MonoBehaviour {
 	void CompleteExplosion()
 	{
 			GameObject.Instantiate(explosion,transform.position, Quaternion.identity);
-			Water.Instance.AddWave(new Water.Wave_Circular(waveAmplitude, wavePeriod, waveSpeed, Time.time, waveDropoffRadius,
-														transform.position,
-														waveLifetime));
+			Water.Instance.AddWave(new Water.Wave_Circular(waveAmplitude, wavePeriod,
+														   waveSpeed, waveDropoffRadius,
+														   transform.position, waveLifetime));
 			sRend.enabled = false;
 			GameManager.Instance.MineExploded();
 	}

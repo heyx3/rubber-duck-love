@@ -17,6 +17,7 @@ public class GameManager : Singleton<GameManager>
 
 	public GameState currState;
 	public float timeInState;
+	public float timeAccelAddMod = 1f;
 	public float startDuration = 2f;
 	public float maxOutOfRocksDuration = 15f;
 	public float minWinDuration = 3f;
@@ -226,6 +227,10 @@ public class GameManager : Singleton<GameManager>
 
 	void UpdateOutOfRocks()
 	{
+		// allow acceleration
+		if (Input.GetButton("Throw"))
+			timeInState += Time.deltaTime * timeAccelAddMod;
+
 		if (currRocksInAir <= 0
 			// && (playerRb2d.velocity.magnitude < loseVelocityThreshold || timeInState >= maxOutOfRocksDuration))
 			&& timeInState >= maxOutOfRocksDuration)
@@ -244,7 +249,7 @@ public class GameManager : Singleton<GameManager>
 		if (timeInState >= minWinDuration && !promptedContinue)
 		{
 			UIManager.Instance.ShowContinuePanel();
-			if (Input.GetKeyDown(KeyCode.Space))
+			if (Input.GetButtonDown("Throw"))
 			{
                 SceneManager.LoadScene(nextscene);
             }
@@ -260,7 +265,7 @@ public class GameManager : Singleton<GameManager>
 		if (timeInState >= minLoseDuration && !promptedContinue)
 		{
 			UIManager.Instance.ShowContinuePanel();
-			if (Input.GetKeyDown(KeyCode.Space))
+			if (Input.GetButtonDown("Throw"))
 			{
 				SetState(GameState.Startup);
 			}

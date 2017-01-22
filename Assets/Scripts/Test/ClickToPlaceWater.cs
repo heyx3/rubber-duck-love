@@ -22,10 +22,9 @@ public class ClickToPlaceWater : MonoBehaviour
 									   Input.mousePosition.y / MainCam.pixelHeight);
 			Vector2 posWaterCam = new Vector2(posT.x * WaterCam.pixelWidth,
 											  posT.y * WaterCam.pixelHeight);
-			Water.Instance.AddWave(new Water.Wave_Circular(Amplitude, Period, Speed,
-													 Time.time, Dropoff,
-													 WaterCam.ScreenToWorldPoint(posWaterCam),
-													 Lifetime));
+			Water.Instance.AddWave(new Water.Wave_Circular(Amplitude, Period, Speed, Dropoff,
+														   WaterCam.ScreenToWorldPoint(posWaterCam),
+														   Lifetime));
 		}
 	}
 }
