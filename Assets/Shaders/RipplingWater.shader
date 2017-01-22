@@ -17,6 +17,7 @@ Shader "Water/Water"
         _Diffuse("Diffuse light", Float) = 0.7
         _Specular("Specular light", Vector) = (10,10,10,10)
         _SpecIntensity("Specular intensity", Float) = 64.0
+        _LightColor("Light Color", Color) = (1,1,1,1)
 
         _RippleCenterSize("Ripple center size", Float) = 0.2
 
@@ -91,6 +92,7 @@ Shader "Water/Water"
                 uniform float3 lightDir = float3(0.57735, 0.57735, -0.57735);
                 float _Ambient, _Diffuse, _SpecIntensity;
                 float3 _Specular;
+                float3 _LightColor;
 
 
                 float getHeight(float2 worldPos)
@@ -177,7 +179,8 @@ Shader "Water/Water"
                     float3 h = normalize(float3(0.0, 0.0, -1.0) - lightDir);
                     float3 spec = _Specular * pow(saturate(dot(h, normal)), _SpecIntensity);
 
-                    return float3(brightness, brightness, brightness) + spec;
+                    float3 finalAmbientDiffuse = brightness * _LightColor;
+                    return (brightness * _LightColor) + spec;
                 }
 
                 sampler2D _LakeFloorTex;
