@@ -16,7 +16,7 @@ public class SplashMenu : MonoBehaviour
     // Update is called once per frame
     void Start()
     {
-        StartCoroutine(WaitAndStart(5.0f));
+        StartCoroutine(WaitAndStart(3.0f));
     }
 
     void Update()

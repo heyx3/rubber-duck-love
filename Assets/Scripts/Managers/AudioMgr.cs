@@ -13,7 +13,8 @@ public enum SoundEffectType
     kMineExplode,
     kVictoryStab,
     kRockHit,
-    kDefeat
+    kDefeat,
+    kBounce
 }
 
 public class AudioMgr : MonoBehaviour
@@ -38,16 +39,24 @@ public class AudioMgr : MonoBehaviour
     public ThrowControl player;
     public bool throwing;
     public bool boatsPresent;
+ 
+    public bool quackDown;
 
     void Start()
     {
         DontDestroyOnLoad(transform.gameObject);
         Instance = this;
-
+        quackDown = false;
         Projectile.OnProjectileStageChange += Throw;
         ThrowControl.OnPlayerStateChange += Player;
         Projectile.OnProjectileImpact += HitAudio;
         ExplodingObstacle.OnExplosionStart += MineExplode;
+        BounceTrigger.OnBounce += OnBounce;
+    }
+
+    private void OnBounce(string col_tag, string my_tag)
+    {
+        PlaySFX(SoundEffectType.kBounce);
     }
 
     private void MineExplode()
@@ -152,6 +161,7 @@ public class AudioMgr : MonoBehaviour
             }
 
         }
+
         GameObject b = GameObject.Find("Boat");
         if (b != null)
         {
@@ -174,10 +184,12 @@ public class AudioMgr : MonoBehaviour
 
     void Update()
     {
-        if (Input.GetKey("3"))
+        if (Input.GetKey(KeyCode.Q))
         {
-            ambient.Stop();
-            bgm.Stop();
+            if (quackDown != true)
+            {
+                StartCoroutine(QToQuack(1.0f));
+            }
         }
     }
 
@@ -194,6 +206,14 @@ public class AudioMgr : MonoBehaviour
         bgm.Stop();
         PlaySFX(SoundEffectType.kDefeat);
     }
-
+    private IEnumerator QToQuack(float waitTime)
+    {
+        quackDown = true;
+        PlaySFX(SoundEffectType.kQuack);
+        int index = Random.Range(0, quacks.Length);
+        effects[(int)SoundEffectType.kQuack] = quacks[index];
+        yield return new WaitForSeconds(waitTime);
+        quackDown = false;
+    }
 
 }
