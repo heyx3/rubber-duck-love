@@ -298,7 +298,9 @@ public class ThrowControl : MonoBehaviour
 
 	void ThrowProjectile()
 	{
-		GameObject proj_obj = GameObject.Instantiate(objectToThrow,transform.position,arrowSlider.transform.rotation);
+		GameObject proj_obj = GameObject.Instantiate(objectToThrow,
+							      arrowSlider.transform.position,
+								  arrowSlider.transform.rotation);
 		Projectile proj = proj_obj.GetComponent<Projectile>();
 		proj.StartThrow(currFill);
 		SetState(PlayerState.Aiming);
