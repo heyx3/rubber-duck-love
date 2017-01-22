@@ -27,6 +27,12 @@ public class TransformResetter : MonoBehaviour {
 		transform.rotation = startRot;
 		transform.localScale = startLocalScale;
 
+		ExplodingObstacle xo = GetComponent<ExplodingObstacle>();
+		if (xo != null)
+		{
+			xo.Reset();
+		}
+		
 		StopAllCoroutines();
 		
 		if (rb2d != null)

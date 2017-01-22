@@ -10,6 +10,8 @@ public class UIManager  : Singleton<UIManager>
 	public CanvasGroup losePanel;
 	public CanvasGroup playPanel;
 	public CanvasGroup continuePanel;
+	public CanvasGroup explosionPanel;
+
 	public Text rockCountLabel;
 
 	public Text levelPointsText;
@@ -22,6 +24,7 @@ public class UIManager  : Singleton<UIManager>
 	private float startScore;
 	private float targetScore;
 	private float currScore;
+	private Vector3 shakeStartPos;
 
 
 	void OnEnable()
@@ -46,6 +49,8 @@ public class UIManager  : Singleton<UIManager>
 		startPanel.alpha = 1;
 		winPanel.alpha = 0;
 		losePanel.alpha = 0;
+		RectTransform rt = explosionPanel.transform as RectTransform;
+		shakeStartPos = rt.anchoredPosition3D;
 	}
 	
 	// Update is called once per frame
@@ -56,13 +61,14 @@ public class UIManager  : Singleton<UIManager>
 		losePanel.alpha = newState == GameState.Lose ? 1 : 0;
 		playPanel.alpha = (newState == GameState.Playing || newState == GameState.Win) ? 1 : 0;
 		continuePanel.alpha = 0f;
+		explosionPanel.alpha = 0f;
 
 		UpdateProjectileCount();
 
-		if (oldState == GameState.Win)
-		{
+		// if (oldState == GameState.Win)
+		// {
 			StopAllCoroutines();
-		}
+		// }
 	}
 
 	void UpdateProjectileCount()
@@ -100,6 +106,36 @@ public class UIManager  : Singleton<UIManager>
 		startScore = lastScore;
 		targetScore = currentScore;
 		StartCoroutine(DoScoreRollup());
+	}
+
+	public void ExplosionResponse()
+	{
+		UpdateProjectileCount();
+		StartCoroutine(DoExplosion());
+	}
+
+	IEnumerator DoExplosion()
+	{
+		explosionPanel.alpha = 1.0f;
+		float maxMove = 25f;
+		//Vector3 maxPos = rt.anchoredPosition3D + new Vector2(10,10,10);
+		float time = 0f;
+		float maxTime = 1f;
+		RectTransform rt = explosionPanel.transform as RectTransform;
+		while (time < maxTime)
+		{
+			time = Mathf.Min(1.0f, time + Time.deltaTime);
+			float lerpFactor = time / maxTime;
+			Vector3 shakeVec = new Vector3(Random.value * maxMove, Random.value * maxMove, 0f) * (1 - lerpFactor);
+			explosionPanel.alpha = 1.0f - lerpFactor;
+			rt.anchoredPosition3D = shakeVec;
+			yield return null;
+		}
+		explosionPanel.alpha = 0f;
+		rt.anchoredPosition3D = shakeStartPos;
+
+
+
 	}
 
 	IEnumerator DoScoreRollup()

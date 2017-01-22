@@ -264,6 +264,12 @@ public class GameManager : Singleton<GameManager>
 		SetState(GameState.Win);
 	}
 
+	public void MineExploded()
+	{
+		currRockInventory = Mathf.Max(0, currRockInventory - 1);
+		UIManager.Instance.ExplosionResponse();
+	}
+
 	public void RockThrown()
 	{
 		currRockInventory--;

@@ -260,7 +260,7 @@ public class Projectile : MonoBehaviour
 			currState == ProjectileState.Airborne)
 		{
 			ProcessImpact(ProjectileImpactType.Grass);
-			SetState(ProjectileState.Dead);
+			SetState(ProjectileState.Landed);
 		}
 	}
 
