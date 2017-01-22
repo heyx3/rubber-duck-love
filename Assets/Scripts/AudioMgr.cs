@@ -40,6 +40,13 @@ public class AudioMgr : MonoBehaviour
     void Awake()
     {
         Instance = this;
+        if (player == null)
+        {
+            GameObject t = GameObject.Find("Player");
+            player = t.GetComponent<ThrowControl>();
+        }
+
+
         Projectile.OnProjectileStageChange += Throw;
         ThrowControl.OnPlayerStateChange += Player;
         Projectile.OnProjectileImpact += HitAudio;

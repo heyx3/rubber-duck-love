@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public enum GameState
 {
@@ -226,17 +227,18 @@ public class GameManager : Singleton<GameManager>
 
 	void UpdateWin()
 	{
-		if (timeInState >= maxWinDuration)
+        int nextscene = 1 + SceneManager.GetActiveScene().buildIndex;
+        if (timeInState >= maxWinDuration)
 		{
-			SetState(GameState.Startup);
+			SceneManager.LoadScene(nextscene);
 		}
 		if (timeInState >= minWinDuration && !promptedContinue)
 		{
 			UIManager.Instance.ShowContinuePanel();
 			if (Input.GetKeyDown(KeyCode.Space))
 			{
-				SetState(GameState.Startup);
-			}
+                SceneManager.LoadScene(nextscene);
+            }
 		}
 	}
 
