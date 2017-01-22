@@ -17,20 +17,28 @@ public class ProjectileImpactTrigger : MonoBehaviour {
 		if (parentProj.currState != ProjectileState.Landed || !readyForImpact)
 			return;
 		
-		if (other.tag == "Player")
+		switch (other.tag)
 		{
+		case "Player":
 			parentProj.ProcessImpact(ProjectileImpactType.RubberDuck);
 			readyForImpact = false;
-		}
-		else if (other.tag == "RealDuck" )
-		{
+			break;
+		case "RealDuck":
 			parentProj.ProcessImpact(ProjectileImpactType.RealDuck);
 			readyForImpact = false;
-		}
-		else if (other.tag == "RockLobstacle" )
-		{
+			break;
+		case "RockLobstacle":
 			parentProj.ProcessImpact(ProjectileImpactType.Rock);
 			readyForImpact = false;
+			break;
+		case "Boat":
+			parentProj.ProcessImpact(ProjectileImpactType.Boat);
+			readyForImpact = false;
+			break;
+		case "Mine":
+			parentProj.ProcessImpact(ProjectileImpactType.Mine);
+			readyForImpact = false;
+			break;
 		}
 	}
 }

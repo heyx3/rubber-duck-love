@@ -11,7 +11,9 @@ public class UIManager  : Singleton<UIManager>
 	public CanvasGroup playPanel;
 	public CanvasGroup continuePanel;
 	public CanvasGroup explosionPanel;
+	public CanvasGroup outOfRocksPanel;
 
+	public Text outofRocksText;
 	public Text rockCountLabel;
 
 	public Text levelPointsText;
@@ -60,6 +62,7 @@ public class UIManager  : Singleton<UIManager>
 		winPanel.alpha = newState == GameState.Win ? 1 : 0;
 		losePanel.alpha = newState == GameState.Lose ? 1 : 0;
 		playPanel.alpha = (newState == GameState.Playing || newState == GameState.Win) ? 1 : 0;
+		outOfRocksPanel.alpha = (newState == GameState.OutOfRocks) ? 1 : 0;
 		continuePanel.alpha = 0f;
 		explosionPanel.alpha = 0f;
 
@@ -69,6 +72,23 @@ public class UIManager  : Singleton<UIManager>
 		// {
 			StopAllCoroutines();
 		// }
+	}
+
+	void Update()
+	{
+		if (GameManager.Instance.currState == GameState.OutOfRocks)
+			UpdateOutOfRocks();
+	}
+	void UpdateOutOfRocks()
+	{
+		float timeLeft = Mathf.Max(0, GameManager.Instance.maxOutOfRocksDuration - GameManager.Instance.timeInState);
+		outofRocksText.text = "OUT OF ROCKS" +
+							  ((timeLeft >= 11.0f) ? "" : ("\n" + timeLeft.ToString("n0") + " sec"));
+
+
+		if (timeLeft >= 11.0f)
+		{
+		}
 	}
 
 	void UpdateProjectileCount()

@@ -7,7 +7,7 @@ public enum GameState
 {
 	Startup = 0,
 	Playing = 1,
-	Paused = 2,
+	OutOfRocks = 2,
 	Win = 3,
 	Lose = 4
 }
@@ -17,13 +17,13 @@ public class GameManager : Singleton<GameManager>
 
 	public GameState currState;
 	public float timeInState;
-	public float startDuration = 1f;
+	public float startDuration = 2f;
+	public float maxOutOfRocksDuration = 15f;
 	public float minWinDuration = 3f;
 	public float maxWinDuration = 10f;
 	public float minLoseDuration = 3f;
 	public float maxLoseDuration = 10f;
 	public bool promptedContinue = false;
-
 
 	public int startingRocks = 10;
 	public int currRockInventory = 0;
@@ -70,8 +70,8 @@ public class GameManager : Singleton<GameManager>
 		case GameState.Playing:
 			ExitPlaying(newState);
 			break;
-		case GameState.Paused:
-			ExitPaused(newState);
+		case GameState.OutOfRocks:
+			ExitOutOfRocks(newState);
 			break;
 		case GameState.Win:
 			ExitWin(newState);
@@ -88,8 +88,8 @@ public class GameManager : Singleton<GameManager>
 		case GameState.Playing:
 			EnterPlaying(oldState);
 			break;
-		case GameState.Paused:
-			EnterPaused(oldState);
+		case GameState.OutOfRocks:
+			EnterOutOfRocks(oldState);
 			break;
 		case GameState.Win:
 			EnterWin(oldState);
@@ -142,12 +142,12 @@ public class GameManager : Singleton<GameManager>
 		
 	}
 
-	void EnterPaused(GameState exitState)
+	void EnterOutOfRocks(GameState exitState)
 	{
 
 	}
 
-	void ExitPaused(GameState enterState)
+	void ExitOutOfRocks(GameState enterState)
 	{
 		
 	}
@@ -191,8 +191,8 @@ public class GameManager : Singleton<GameManager>
 		case GameState.Playing:
 			UpdatePlaying();
 			break;
-		case GameState.Paused:
-			UpdatePaused();
+		case GameState.OutOfRocks:
+			UpdateOutOfRocks();
 			break;
 		case GameState.Win:
 			UpdateWin();
@@ -213,16 +213,25 @@ public class GameManager : Singleton<GameManager>
 
 	void UpdatePlaying()
 	{
-		if (currRockInventory <= 0 && currRocksInAir <= 0
-			&& playerRb2d.velocity.magnitude < loseVelocityThreshold)
+		// if (currRockInventory <= 0 && currRocksInAir <= 0
+		// 	&& playerRb2d.velocity.magnitude < loseVelocityThreshold)
+		// {
+		// 	SetState(GameState.Lose);
+		// }
+		if (currRockInventory <= 0)
 		{
-			SetState(GameState.Lose);
+			SetState(GameState.OutOfRocks);
 		}
 	}
 
-	void UpdatePaused()
+	void UpdateOutOfRocks()
 	{
-
+		if (currRocksInAir <= 0
+			// && (playerRb2d.velocity.magnitude < loseVelocityThreshold || timeInState >= maxOutOfRocksDuration))
+			&& timeInState >= maxOutOfRocksDuration)
+		{
+			SetState(GameState.Lose);
+		}
 	}
 
 	void UpdateWin()
