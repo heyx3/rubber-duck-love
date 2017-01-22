@@ -7,6 +7,13 @@ public class PlayerAnimationManager : MonoBehaviour {
     [SerializeField]
     private Animator animator;
 
+    public void OnRockDrop()
+    {
+        Debug.Log("drop animation");
+        animator.SetTrigger("Drop Trigger");
+    }
+
+
     public void OnThrow(PlayerState oldState, PlayerState newState)
     {
         if (newState == PlayerState.Throwing)
@@ -30,11 +37,13 @@ public class PlayerAnimationManager : MonoBehaviour {
         {
             animator = gameObject.GetComponent<Animator>();
         }
+        GameManager.OnRockDrop += OnRockDrop;
     }
 
     void OnDestroy()
     {
         ThrowControl.OnPlayerStateChange -= OnThrow;
+        GameManager.OnRockDrop -= OnRockDrop;
     }
 	
 }
