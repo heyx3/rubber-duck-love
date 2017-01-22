@@ -54,5 +54,12 @@ public class ScoreMgr : MonoBehaviour {
             OnScoreManagerWinEvent(completionBonus, rockBonus, timeBonus, scoreThisRound, lastScore, currentScore);
         }
     }
-
+    
+    void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            Application.Quit();
+        }
+    }
 }

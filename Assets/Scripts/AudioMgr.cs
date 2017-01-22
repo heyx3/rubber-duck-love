@@ -33,28 +33,26 @@ public class AudioMgr : MonoBehaviour
     public AudioSource bgm;
     public AudioSource sfx;
     public AudioSource thrower;
+    public AudioSource boat;
 
     public ThrowControl player;
     public bool throwing;
+    public bool boatsPresent;
 
     void Start()
     {
         DontDestroyOnLoad(transform.gameObject);
         Instance = this;
-        if (player == null)
-        {
-            GameObject t = GameObject.Find("Player");
-            if (player != null)
-            {
-                player = t.GetComponent<ThrowControl>();
-            }
-
-        }
-
 
         Projectile.OnProjectileStageChange += Throw;
         ThrowControl.OnPlayerStateChange += Player;
         Projectile.OnProjectileImpact += HitAudio;
+        ExplodingObstacle.OnExplosionStart += MineExplode;
+    }
+
+    private void MineExplode()
+    {
+        PlaySFX(SoundEffectType.kMineExplode);
     }
 
     private void HitAudio (ProjectileImpactType impactType, ProjectileType type)
@@ -70,7 +68,7 @@ public class AudioMgr : MonoBehaviour
         }
         if (impactType == ProjectileImpactType.Mine)
         {
-            PlaySFX(SoundEffectType.kMineExplode);
+            PlaySFX(SoundEffectType.kBoatHit);
         }
         if (impactType == ProjectileImpactType.RealDuck)
         {
@@ -145,6 +143,25 @@ public class AudioMgr : MonoBehaviour
 
     public void StartGame()
     {
+        if (player == null)
+        {
+            GameObject t = GameObject.Find("Player");
+            if (player != null)
+            {
+                player = t.GetComponent<ThrowControl>();
+            }
+
+        }
+        GameObject b = GameObject.Find("Boat");
+        if (b != null)
+        {
+            boat.Play();
+        }
+        if (b == null)
+        {
+            boat.Stop();
+        }
+
         bgm.clip = music[0];
         ambient.Play();
         bgm.Play();
