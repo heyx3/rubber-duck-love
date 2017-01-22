@@ -27,6 +27,7 @@ public class AudioMgr : MonoBehaviour
 
     public AudioClip[] quacks;
     public AudioClip[] splashes;
+    public AudioClip[] squeaks;
 
     public AudioSource ambient;
     public AudioSource bgm;
@@ -41,6 +42,41 @@ public class AudioMgr : MonoBehaviour
         Instance = this;
         Projectile.OnProjectileStageChange += Throw;
         ThrowControl.OnPlayerStateChange += Player;
+        Projectile.OnProjectileImpact += HitAudio;
+    }
+
+    private void HitAudio (ProjectileImpactType impactType, ProjectileType type)
+    {
+        Debug.Log("hit " + impactType);
+        if (impactType == ProjectileImpactType.Boat)
+        {
+            PlaySFX(SoundEffectType.kBoatHit);
+        }
+        if (impactType == ProjectileImpactType.Grass)
+        {
+            PlaySFX(SoundEffectType.kRockHit);
+        }
+        if (impactType == ProjectileImpactType.Mine)
+        {
+            PlaySFX(SoundEffectType.kMineExplode);
+        }
+        if (impactType == ProjectileImpactType.RealDuck)
+        {
+            PlaySFX(SoundEffectType.kQuack);
+            int index = Random.Range(0, quacks.Length);
+            effects[(int)SoundEffectType.kQuack] = quacks[index];
+        }
+        if (impactType == ProjectileImpactType.Rock)
+        {
+            PlaySFX(SoundEffectType.kRockHit);
+        }
+        if (impactType == ProjectileImpactType.RubberDuck)
+        {
+            PlaySFX(SoundEffectType.kSqueak);
+            int index = Random.Range(0, squeaks.Length);
+            effects[(int)SoundEffectType.kSqueak] = squeaks[index];
+        }
+
     }
 
     private void Player(PlayerState oldState, PlayerState newState)
