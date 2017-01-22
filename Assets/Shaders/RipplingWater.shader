@@ -82,10 +82,6 @@ Shader "Water/Water"
                 uniform float4 circular_AmpPerSpdStt[MAX_WAVES_CIRCULAR];
                 uniform float4 circular_PosDropTsc[MAX_WAVES_CIRCULAR];
                 uniform int circular_number = 0;
-                #define MAX_WAVES_DIRECTIONAL 5
-                uniform float3 directional_AmpPerStt[MAX_WAVES_DIRECTIONAL];
-                uniform float2 directional_Velocity[MAX_WAVES_DIRECTIONAL];
-                uniform int directional_number = 0;
 
                 float _RippleCenterSize;
 
@@ -136,27 +132,6 @@ Shader "Water/Water"
                         float heightOffset = -1.0 + (2.0 * pow(mappedSinVal, waveSharpness));
 
                         waveHeight += waveScale * heightOffset;
-                    }
-                    for (int j = 0; j < directional_number; ++j)
-                    {
-                        const float amplitude = directional_AmpPerStt[j].x,
-                                    period = directional_AmpPerStt[j].y,
-                                    startTime = directional_AmpPerStt[j].z;
-
-                        float2 flowDir = directional_Velocity[j];
-                        float speed = length(flowDir);
-                        flowDir /= speed;
-
-                        float timeSinceCreated = startTime - _Time.y;
-
-                        float dist = dot(flowDir, worldPos);
-                        float innerVal = (dist / period) + (-timeSinceCreated * speed);
-
-                        float sinVal = sin(innerVal);
-                        float mappedSinVal = 0.5 + (0.5 * sinVal);
-                        float heightOffset = -1.0 + (2.0 * pow(mappedSinVal, waveSharpness));
-
-                        waveHeight += amplitude * heightOffset;
                     }
 
                     return waveHeight;
