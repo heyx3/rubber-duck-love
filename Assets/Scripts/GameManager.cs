@@ -30,7 +30,7 @@ public class GameManager : Singleton<GameManager>
 	public int currRocksInAir = 0;
 
 	private TransformResetter[] resetters;
-	private Rigidbody2D playerRb2d;
+	//private Rigidbody2D playerRb2d;
 	public float loseVelocityThreshold = 0.01f;
 
 	// event messages
@@ -52,8 +52,8 @@ public class GameManager : Singleton<GameManager>
 	void Start ()
 	{
 		resetters = GameObject.FindObjectsOfType<TransformResetter>();
-		WaterRider rider = GameObject.FindGameObjectWithTag("Player").GetComponent<WaterRider>();
-		playerRb2d = rider.GetComponent<Rigidbody2D>();
+		// WaterRider rider = GameObject.FindGameObjectWithTag("Player").GetComponent<WaterRider>();
+		// playerRb2d = rider.GetComponent<Rigidbody2D>();
 		// Debug.Log("Found " + resetters.Length.ToString() + " resetters");
 		SetState(GameState.Startup);
 	}

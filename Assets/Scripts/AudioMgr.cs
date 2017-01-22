@@ -57,7 +57,7 @@ public class AudioMgr : MonoBehaviour
 
     private void HitAudio (ProjectileImpactType impactType, ProjectileType type)
     {
-        Debug.Log("hit " + impactType);
+        // Debug.Log("hit " + impactType);
         if (impactType == ProjectileImpactType.Boat)
         {
             PlaySFX(SoundEffectType.kBoatHit);
