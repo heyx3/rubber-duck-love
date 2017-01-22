@@ -151,6 +151,7 @@ public class GameManager : Singleton<GameManager>
 
 	void EnterWin(GameState exitState)
 	{
+		// Debug.Log("WIN EVENT WOO HOO");
 		if (OnWin != null)
 		{
 			OnWin(timeInState,currRockInventory,startingRocks);
