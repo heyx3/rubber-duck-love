@@ -28,6 +28,12 @@ public class SpriteShadow : MonoBehaviour
 	}
 	private void LateUpdate()
 	{
+		if (!ParentSpr.enabled)
+		{
+			MySpr.enabled = false;
+			return;
+		}
+
 		Vector2 lightDir = ((Vector2)Water.Instance.LightDir).normalized;
 		MyTr.position = MyTr.parent.position - (Vector3)(lightDir * ShadowDist);
 
