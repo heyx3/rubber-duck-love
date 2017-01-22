@@ -144,9 +144,9 @@ public class Projectile : MonoBehaviour
 		}
 		else
 		{
-			Water.Instance.AddWave(new Water.Wave_Circular(1.0f, 0.5f, 20.0f, Time.time, 10.0f,
-														transform.position,
-														2.0f));
+			// Water.Instance.AddWave(new Water.Wave_Circular(1.0f, 0.5f, 20.0f, Time.time, 10.0f,
+			// 											transform.position,
+			// 											2.0f));
 			Water.Instance.AddWave(new Water.Wave_Circular(waveAmplitude, wavePeriod, waveSpeed, Time.time, waveDropoffRadius,
 														transform.position,
 														waveLifetime));
