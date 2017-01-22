@@ -60,6 +60,7 @@ public class Water : Singleton<Water>
 	public float WaveDropoffRate = 3.0f,
 				 WaveSharpness = 2.0f;
 	public Vector3 LightDir = new Vector3(1.0f, 1.0f, -1.0f).normalized;
+	public Color LightColor = Color.white;
 
 	public AnimationCurve SimplePushDropoff = AnimationCurve.Linear(0.0f, 1.0f, 1.0f, 0.0f);
 
@@ -93,6 +94,8 @@ public class Water : Singleton<Water>
 		}
 
 		waves_circular.Add(circularWave);
+
+		Debug.Log(waves_circular.Count);
 	}
 	public void ClearWaves()
 	{
@@ -274,6 +277,7 @@ public class Water : Singleton<Water>
 		MyRenderer.material.SetFloat("waveDropoffRate", WaveDropoffRate);
 		MyRenderer.material.SetFloat("waveSharpness", WaveSharpness);
 		MyRenderer.material.SetVector("lightDir", LightDir.normalized);
+		MyRenderer.material.SetColor("_LightColor", LightColor);
 	}
 
 
