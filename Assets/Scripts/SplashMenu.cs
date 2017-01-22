@@ -10,6 +10,8 @@ public class SplashMenu : MonoBehaviour
     public bool splashDone;
     public bool musicPlaying;
     public SpriteRenderer splash;
+    public Animator instruction;
+    public Animator credits;
 
     // Update is called once per frame
     void Start()
@@ -27,9 +29,29 @@ public class SplashMenu : MonoBehaviour
                 music.Play();
                 musicPlaying = true;
             }
+
             if (Input.anyKeyDown)
             {
-                SceneManager.LoadScene(1);
+                if (instruction.GetBool("visible") == true)
+                {
+                    if (Input.GetKeyDown(KeyCode.Space))
+                    {
+                        SceneManager.LoadScene(1);
+                    }
+
+                }
+                if (Input.GetKeyDown(KeyCode.C))
+                {
+                    bool cred = credits.GetBool("visible");
+                    credits.SetBool("visible", !cred);
+
+
+                }
+                if (instruction.GetBool("visible") != true)
+                {
+                    instruction.SetBool("visible", true);
+                }
+
             }
         }
 
