@@ -37,13 +37,18 @@ public class AudioMgr : MonoBehaviour
     public ThrowControl player;
     public bool throwing;
 
-    void Awake()
+    void Start()
     {
+        DontDestroyOnLoad(transform.gameObject);
         Instance = this;
         if (player == null)
         {
             GameObject t = GameObject.Find("Player");
-            player = t.GetComponent<ThrowControl>();
+            if (player != null)
+            {
+                player = t.GetComponent<ThrowControl>();
+            }
+
         }
 
 
