@@ -29,6 +29,8 @@ public class GameManager : Singleton<GameManager>
 	public int currRocksInAir = 0;
 
 	private TransformResetter[] resetters;
+	private Rigidbody2D playerRb2d;
+	public float loseVelocityThreshold = 0.01f;
 
 	// event messages
 	public delegate void GameStateChangeEvent(GameState oldState, GameState newState);
@@ -45,6 +47,8 @@ public class GameManager : Singleton<GameManager>
 	void Start ()
 	{
 		resetters = GameObject.FindObjectsOfType<TransformResetter>();
+		WaterRider rider = GameObject.FindGameObjectWithTag("Player").GetComponent<WaterRider>();
+		playerRb2d = rider.GetComponent<Rigidbody2D>();
 		// Debug.Log("Found " + resetters.Length.ToString() + " resetters");
 		SetState(GameState.Startup);
 	}
@@ -197,7 +201,8 @@ public class GameManager : Singleton<GameManager>
 
 	void UpdatePlaying()
 	{
-		if (currRockInventory <= 0 && currRocksInAir <= 0)
+		if (currRockInventory <= 0 && currRocksInAir <= 0
+			&& playerRb2d.velocity.magnitude < loseVelocityThreshold)
 		{
 			SetState(GameState.Lose);
 		}
