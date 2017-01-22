@@ -242,7 +242,7 @@ public class GameManager : Singleton<GameManager>
 
 	public void HitTarget()
 	{
-		Debug.Log("You hit the target!");
+		// Debug.Log("You hit the target!");
 		SetState(GameState.Win);
 	}
 

@@ -34,8 +34,14 @@ public class Projectile : MonoBehaviour
 	public float maxThrowTime = 2f;
 	public float maxScaleMod = 1.5f;
 	public float sinkTime = 1.0f;
-	public ProjectileType type;
+	public ProjectileType type = ProjectileType.Rock;
 	
+	public float waveSpeed = 20f;
+	public float waveAmplitude = 1.0f;
+	public float wavePeriod = 0.5f;
+	public float waveDropoffRadius = 10f;
+	public float waveLifetime = 2.0f;
+
 	public AnimationCurve arc = new AnimationCurve();
 
 	// event messages
@@ -130,10 +136,13 @@ public class Projectile : MonoBehaviour
 			Water.Instance.AddWave(new Water.Wave_Circular(1.0f, 0.5f, 20.0f, Time.time, 10.0f,
 														transform.position,
 														2.0f));
+			Water.Instance.AddWave(new Water.Wave_Circular(waveAmplitude, wavePeriod, waveSpeed, Time.time, waveDropoffRadius,
+														transform.position,
+														waveLifetime));
 		}
 
 	}
-
+	
 	void ExitLanded(ProjectileState enterState)
 	{
 		

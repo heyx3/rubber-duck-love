@@ -6,7 +6,7 @@ public class DuckTarget : MonoBehaviour
 {
 	void OnTriggerEnter2D(Collider2D other)
 	{
-		Debug.Log("Trigger");
+		// Debug.Log("Trigger");
 		if (other.tag == "Player" && GameManager.Instance.currState == GameState.Playing)
 		{
 			GameManager.Instance.HitTarget();
