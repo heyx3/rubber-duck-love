@@ -19,8 +19,8 @@ public class WinCelebration : MonoBehaviour
 				 MaxLifetime = 3.0f,
 				 MinInterval = 0.25f,
 				 MaxInterval = 0.75f,
-				 AngleShiftSpeed = 1.0f,
-				 ColorShiftSpeed = 1.0f;
+				 AngleShiftSpeed = 1.0f;
+	public Vector3 ColorShiftSpeed = Vector3.one;
 	public Color MinColor = new Color(1.0f, 0.0f, 1.0f),
 				 MaxColor = new Color(0.5f, 0.0f, 1.0f);
 
@@ -70,10 +70,10 @@ public class WinCelebration : MonoBehaviour
 								MinColor.b == MaxColor.b ?
 									0.5f :
 									Mathf.InverseLerp(MinColor.b, MaxColor.b, Water.Instance.LightColor.b));
-		float tChange = ColorShiftSpeed * Time.deltaTime;
-		t = new Vector3(Mathf.PingPong(t.x + tChange, 1.0f),
-						Mathf.PingPong(t.y + tChange, 1.0f),
-						Mathf.PingPong(t.z + tChange, 1.0f));
+		Vector3 tChange = ColorShiftSpeed * Time.deltaTime;
+		t = new Vector3(Mathf.PingPong(t.x + tChange.x, 1.0f),
+						Mathf.PingPong(t.y + tChange.y, 1.0f),
+						Mathf.PingPong(t.z + tChange.z, 1.0f));
 		Water.Instance.LightColor = new Color(Mathf.Lerp(MinColor.r, MaxColor.r, t.x),
 											  Mathf.Lerp(MinColor.g, MaxColor.g, t.y),
 											  Mathf.Lerp(MinColor.b, MaxColor.b, t.z),

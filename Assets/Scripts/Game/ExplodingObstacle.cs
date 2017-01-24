@@ -28,6 +28,7 @@ public class ExplodingObstacle : MonoBehaviour {
 	{
 		sRend.enabled = true;
 		readyToExplode = true;
+        SetCollidersEnabled(true);
 	}
 
 	void OnTriggerEnter2D (Collider2D other)
@@ -39,7 +40,15 @@ public class ExplodingObstacle : MonoBehaviour {
 		}
 	}
 	
-	void CompleteExplosion()
+    void SetCollidersEnabled(bool val)
+    {
+        Collider2D[] cols = GetComponents<Collider2D>();
+        for (int i = 0; i < cols.Length; i++)
+        {
+            cols[i].enabled = val;
+        }
+    }
+    void CompleteExplosion()
 	{
 			GameObject.Instantiate(explosion,transform.position, Quaternion.identity);
 			Water.Instance.AddWave(new Water.Wave_Circular(waveAmplitude, wavePeriod,
@@ -47,6 +56,7 @@ public class ExplodingObstacle : MonoBehaviour {
 														   transform.position, waveLifetime));
 			sRend.enabled = false;
 			GameManager.Instance.MineExploded();
+        SetCollidersEnabled(false);
 	}
 
 	IEnumerator DelayedExplosion ()
