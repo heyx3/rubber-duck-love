@@ -184,7 +184,7 @@ public class AudioMgr : MonoBehaviour
 
     void Update()
     {
-        if (Input.GetKey(KeyCode.Q))
+        if (Input.GetButton("Quack"))
         {
             if (quackDown != true)
             {
